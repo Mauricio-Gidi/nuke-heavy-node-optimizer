@@ -217,8 +217,8 @@ Nuke-facing services and persistence helpers log warnings/info when something go
 
 ## License
 
-This project is licensed under the MIT License.
+Add your project’s license information here.
 
-Copyright (c) 2025 Mauricio Gidi
-
-See the [LICENSE](LICENSE) file for the full license text.
+```
+::contentReference[oaicite:35]{index=35}
+```
