@@ -1,216 +1,221 @@
 # Nuke Optimizer
 
-A small Nuke helper to quickly disable/enable “heavy” nodes (Kronos, OFlow2, Denoise2, etc.) across the current script, plus a UI to manage which node classes are considered heavy.
+Nuke Optimizer is a small PySide2 utility for managing “heavy” nodes in Nuke
+(Denoise, ZDefocus, Deep nodes, etc.). It lets you define which node classes
+are considered heavy, see how many of each exist in the current script, and
+bulk enable/disable/toggle them while you work.
 
-The tool integrates into Nuke’s **Scripts → Optimizer** menu and stores its configuration under your `~/.nuke` directory. 
+The tool is designed to be safe, defensive around Nuke API errors, and fully
+per-user: each artist gets their own config and log file under their Nuke home
+directory. :contentReference[oaicite:0]{index=0}
 
 ---
 
 ## Features
 
-- **One-click bulk toggle of heavy nodes**
-  - Toggle, disable, or enable all configured heavy nodes via Nuke menu commands. 
-- **Configurable heavy-node class list**
-  - Ships with a sensible default list (Kronos, OFlow2, MotionBlur, ZDefocus2, Denoise2, DeepRecolor, etc.).
-  - Add/remove classes based on your current pipeline. 
-- **Per-class statistics**
-  - UI shows, for each class, how many nodes exist and how many are currently disabled. 
-- **Preset import/export**
-  - Save or load class lists and their toggled state as JSON or CSV presets. :contentReference[oaicite:4]{index=4}
-- **Persistent configuration and logging**
-  - Config JSON and log file under your `~/.nuke` directory, versioned and validated. 
-- **Defensive, Nuke-safe behavior**
-  - Fails gracefully when Nuke API is unavailable or nodes are missing `disable` knobs; logs details instead of raising. 
+- Configurable list of “heavy” node classes, with sensible defaults.
+- Displays a count of how many nodes of each class are present in the current
+  script.
+- Checkboxes to decide which classes are affected by bulk operations.
+- Nuke menu commands under `Scripts ▸ Optimizer` to:
+  - Open the Optimizer window.
+  - Enable heavy nodes.
+  - Disable heavy nodes.
+  - Toggle heavy nodes.
+- Per-user JSON configuration stored under the user’s Nuke home directory.
+- Rotating log file (`optimizer.log`) in the same area for debugging.
+- Import / export of presets (JSON or CSV) for the class list and toggled
+  subset, so you can share settings between artists or shows.
 
 ---
 
 ## Repository layout
 
+The core pieces you need to ship are:
+
 ```text
-nuke_optimizer_data/        # Runtime data written under ~/.nuke/
-  config.json               # Persistent user configuration (JSON)
-  optimizer.log             # Rotating log file
-
-nuke_optimizer/             # Main package (put this on Nuke's PYTHONPATH)
-  __init__.py
-  menu.py                   # Nuke menu integration entrypoint
-
-  mvc/                      # MVC UI stack (PySide2)
+nuke_optimizer/               # Plugin folder (this is what you point Nuke at)
+  menu.py                     # Registers "Scripts/Optimizer" menu entries
+  mvc/
     __init__.py
-    app.py                  # App bootstrap + logging + show()
-    controller.py           # Wires view/model, storage, and nuke_services
-    model.py                # In-memory list of node classes
-    view.py                 # Qt widgets, list, controls, and counts
-
+    app.py                    # Application bootstrap & logging
+    controller.py             # Wires view ↔ model, talks to nuke_services
+    model.py                  # In-memory list of classes
+    view.py                   # PySide2 UI
+    dialogs.py                # QMessageBox helpers
   optimizer/
     __init__.py
-    config.py               # Global config constants and file naming
-    defaults.py             # Built-in heavy node class list
-    nuke_services.py        # Nuke API helpers (class stats, toggling)
-    storage.py              # Config load/save/validate helpers
+    config.py                 # Global config constants (APP_DIR_NAME, etc.)
+    defaults.py               # Built-in heavy node class list
+    nuke_services.py          # All Nuke API calls & bulk ops
+    storage.py                # JSON config load/save/validation
 ````
+
+You do **not** need to distribute per-user data such as:
+
+```text
+nuke_optimizer_data/
+  config.json
+  optimizer.log
+```
+
+Those files will be created automatically for each artist when they use the
+tool.
 
 ---
 
 ## Installation
 
-1. **Copy the package into your Nuke home**
+You can install Nuke Optimizer either:
 
-   Place the `nuke_optimizer` directory somewhere on Nuke’s Python path, typically:
+* per-user (by pointing Nuke at a folder in the user’s home), or
+* in a shared studio location on the network.
 
-   * Linux/macOS: `~/.nuke/nuke_optimizer`
-   * Windows: `%USERPROFILE%\.nuke\nuke_optimizer`
+Nuke discovers startup scripts by scanning all directories in its plug-in
+path (`nuke.pluginPath()` / `NUKE_PATH`) and executing any `init.py` and
+`menu.py` it finds. ([Foundry Support][1])
 
-   The tool expects to write:
+### 1. Put the plugin folder somewhere Nuke can see
 
-   * A config file under `~/.nuke/nuke_optimizer_data/config.json`.
-   * A log file at `~/.nuke/optimizer.log`.
+Copy the entire `nuke_optimizer/` folder (shown above) to a location of your
+choice, for example:
 
-2. **Register the menu in your `~/.nuke/menu.py`**
+* Per-user: `~/.nuke/nuke_optimizer`
+* Shared: `/studio/pipeline/nuke/nuke_optimizer`
 
-   In your user `menu.py` (in `~/.nuke`), add:
+The folder you point Nuke at must directly contain `menu.py` (Nuke does not
+scan subdirectories for `menu.py`). ([Foundry Support][1])
 
-   ```python
-   import nuke_optimizer.menu
-   nuke_optimizer.menu.main()
-   ```
+### 2. Add that folder to the Nuke plug-in path
 
-   This creates/refreshes a **Scripts → Optimizer** submenu and adds Optimizer commands under it. 
+In your user `~/.nuke/init.py` (or a studio-wide init script), add:
 
-3. **Restart Nuke**
+```python
+# ~/.nuke/init.py
+import nuke
 
-   On the next launch, you should see:
+# Path to the folder that contains menu.py, mvc/, optimizer/
+nuke.pluginAddPath("/studio/pipeline/nuke/nuke_optimizer")
+```
 
-   * `Scripts → Optimizer → Toggle heavy nodes`
-   * `Scripts → Optimizer → Optimizer editor`
-   * `Scripts → Optimizer → Disable Heavy Nodes`
-   * `Scripts → Optimizer → Enable Heavy Nodes` 
+Or, for a per-user install:
+
+```python
+nuke.pluginAddPath(os.path.expanduser("~/.nuke/nuke_optimizer"))
+```
+
+You can also achieve the same by adding that directory to the `NUKE_PATH`
+environment variable, but `nuke.pluginAddPath()` is usually simpler for
+per-user setup. ([Foundry Support][1])
+
+### 3. Restart Nuke
+
+When you launch Nuke in GUI mode, it will:
+
+1. Scan all plug-in paths.
+2. Execute any `init.py` files it finds.
+3. Execute any `menu.py` files it finds.
+
+At this point `nuke_optimizer/menu.py` runs and registers the
+`Scripts ▸ Optimizer` menu and commands automatically, without any extra
+code in your own `~/.nuke/menu.py`. ([Foundry Support][1])
+
+### Optional: alternative package-style integration
+
+If you prefer not to rely on `menu.py` being on the plug-in path, you can
+also install `nuke_optimizer/` on `PYTHONPATH` and explicitly call its
+registration entry point from your own `~/.nuke/menu.py`:
+
+```python
+# ~/.nuke/menu.py
+import nuke_optimizer.menu
+nuke_optimizer.menu.main()
+```
+
+In this mode, you are treating Nuke Optimizer purely as a Python package;
+you are responsible for calling `main()` yourself.
 
 ---
 
 ## Usage
 
-### Menu commands
+1. Launch Nuke.
 
-Once installed, use the following actions from the **Scripts → Optimizer** submenu:
+2. In the main menu bar, go to:
 
-* **Toggle heavy nodes** (`Ctrl+Alt+O` by default)
+   `Scripts ▸ Optimizer`
 
-  * If any heavy node is currently enabled, all heavy nodes are disabled.
-  * Otherwise, all heavy nodes are enabled.
-* **Disable Heavy Nodes**
+   and choose the command that opens the Optimizer window.
 
-  * Forces all configured heavy nodes to `disable=True`.
-* **Enable Heavy Nodes**
+3. In the Optimizer window you can:
 
-  * Forces all configured heavy nodes to `disable=False`.
-* **Optimizer editor**
+   * See the list of configured heavy node classes.
+   * See how many nodes of each class are present in the current script.
+   * Check/uncheck which classes should be affected by bulk operations.
+   * Add or remove class names to tailor the list to your pipeline.
 
-  * Opens the Optimizer configuration window (MVC UI).
+4. Use the other `Scripts ▸ Optimizer` commands to:
 
-All three operations act only on nodes whose classes are in the configured list and currently marked as “toggled” in the UI. Nodes are changed by flipping their `disable` knob.
+   * Disable heavy nodes.
+   * Enable heavy nodes.
+   * Toggle heavy nodes.
 
-### Optimizer window (UI)
-
-Open via **Scripts → Optimizer → Optimizer editor**. This constructs the MVC stack (`Model`, `View`, `Controller`) and ensures logging is configured.
-
-The window provides:
-
-* **Class list**
-
-  * Each row is a node class name.
-  * Checkbox indicates whether that class is active as a heavy class.
-  * Right-aligned suffix shows `(disabled/total disabled)` stats for that class in the current script.
-
-* **Filter field**
-
-  * Text filter over the class list. 
-
-* **Select all (tri-state)**
-
-  * Unchecked: no classes active.
-  * Checked: all classes active.
-  * Partially checked: mix of checked/unchecked; clicking will check all.
-
-* **Buttons**
-
-  * **Toggle heavy nodes**
-    Runs the same bulk toggle as the Nuke menu action.
-  * **Add**
-    Uses the current Nuke node selection to discover class names and add them to the list (with confirmation).
-  * **Remove**
-    Removes selected classes from the list (with confirmation).
-  * **Presets → Export… / Import… / Reset to defaults**
-
-    * Export/import JSON or CSV presets with `classes` and `toggled` fields.
-    * Reset to the built-in defaults from `optimizer.defaults.RENDER_INTENSIVE_NODES`.
-  * **Help**
-    Shows a short help dialog describing Optimizer and its usage.
-
-* **Status line**
-
-  * Non-modal text for quick feedback, such as “Preset exported.” or “Added 3 classes.”
-
-The controller debounces both Nuke API calls (for per-class stats) and config saves, so the UI remains responsive even with many classes.
+Only nodes whose `Class()` appears in the configured list **and** whose class
+is currently checked are affected. Nodes must also expose a `disable` knob to
+be modified.
 
 ---
 
-## Configuration and persistence
+## Configuration & data
 
-* **Config file**
+Configuration and logs are stored under the user’s Nuke home directory
+(typically the `.nuke` folder in the user’s home). ([Foundry Support][1])
 
-  * Stored as JSON under `~/.nuke/nuke_optimizer_data/config.json`.
-  * Keys:
+* Config directory: `~/.nuke/<APP_DIR_NAME>_data/`
 
-    * `version`: integer schema version (compared against `CONFIG_VERSION`).
-    * `classes`: list of all known heavy classes in UI order.
-    * `toggled`: subset of `classes` that are currently enabled in the UI.
+  * JSON file: `config.json`
+  * Contains:
 
-* **Defaults and migration**
+    * `classes`: ordered list of heavy node class names.
+    * `toggled`: subset of `classes` that should be affected by bulk ops.
+    * `version`: config schema version.
+* Log file: `~/.nuke/optimizer.log`
 
-  * `CONFIG_VERSION`, `APP_DIR_NAME`, and `FILE_NAME` are defined in `optimizer.config`. 
-  * On load:
+  * Rotating log, suitable for troubleshooting (IO errors, Nuke API errors,
+    preset load failures, etc.).
 
-    * `safe_load_or_default()` reads the existing file.
-    * If the file is missing, invalid, or has an outdated schema, it logs a warning and rebuilds a fresh config from `RENDER_INTENSIVE_NODES`.
+If `config.json` is missing or invalid, the storage layer will automatically
+fall back to the factory defaults and write a fresh config to disk.
 
-* **Validation**
-
-  * `storage.validate()` ensures the config is a dict with a non-outdated `version`, a list of string `classes`, and optional list-of-string `toggled`.
-
----
-
-## Logging
-
-The UI bootstrap configures a rotating file handler for the `optimizer` logger:
-
-* Log path: `~/.nuke/optimizer.log`
-* Max size: 1 MB per file, up to 5 backups.
-* Format: timestamp, level, logger name, message. 
-
-Nuke-facing services and persistence helpers log warnings/info when something goes wrong (e.g., invalid config, missing `disable` knob, failed Nuke queries). This makes it easier to debug broken scenes or configuration issues.
+You should **not** commit or distribute any artist’s personal `config.json`
+or `optimizer.log` files; they are intended to be local and per-user.
 
 ---
 
-## Development notes
+## Presets
 
-* **MVC separation**
+The UI exposes preset import/export helpers:
 
-  * `Model`: in-memory, ordered set of class names, with simple add/remove/replace operations and no Qt/Nuke knowledge. 
-  * `View`: passive PySide2 widgets, layouts, and helpers; exposes a small API driven entirely by the controller. 
-  * `Controller`: owns the model and `DialogService`, subscribes to view signals, persists config via `storage`, and invokes `nuke_services` for Nuke operations.
+* **Export preset**
 
-* **Nuke API integration**
+  * Saves the current `classes` and `toggled` sets to a JSON or CSV file.
+* **Import preset**
 
-  * All direct Nuke calls live in `optimizer.nuke_services`:
+  * Loads a preset from JSON or CSV, replaces the current list, and persists
+    it to `config.json`.
 
-    * `class_stats(classes)` for per-class disabled/total counts.
-    * `apply_heavy_nodes()` and wrappers (`heavy_nodes`, `toggle_heavy_nodes`) for bulk node operations.
-    * `selected_class_names()` for deriving classes from the current node selection. 
+This makes it easy to distribute standard heavy-node lists per show or
+department: maintain a set of preset files in source control, and have
+artists import the matching preset.
 
-* **Safety**
+---
 
-  * The code uses defensive error handling around Nuke and file I/O so that the UI continues to work even when scripts or environments are imperfect.
+## Dependencies
+
+* Nuke (with its bundled Python and Nuke Python API).
+* PySide2 (bundled with modern Nuke versions, no extra install needed). ([erwanleroy.com][2])
+
+No third-party Python packages are required.
 
 ---
 
