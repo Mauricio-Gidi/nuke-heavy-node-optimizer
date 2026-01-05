@@ -36,6 +36,7 @@ nuke-heavy-node-optimizer/
             __init__.py
             app.py
             controller.py
+            dialogs.py
             model.py
             view.py
         optimizer/
