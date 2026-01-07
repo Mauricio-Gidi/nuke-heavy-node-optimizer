@@ -6,6 +6,11 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 - Hotkey: **Ctrl+Alt+O**
 - Safety: only touches the node’s `disable` knob
 
+**Highlights**
+- One hotkey toggles **N heavy nodes** (N→1 action)
+- Tested on **Windows** (Nuke 13.x, 15.2v6, 16.x)
+- Only modifies the `disable` knob (low-risk change)
+
 ## Demo
 
 <!-- Uncomment once the file exists:
@@ -42,11 +47,11 @@ nuke.pluginAddPath("./nuke_optimizer")
 
 ## Problem
 
-In large scripts, compute-heavy nodes (retime/denoise/defocus/mblur/etc.) can slow down viewer interaction and test renders, forcing repetitive manual disabling and increasing the chance of forgetting to re-enable nodes.
+Heavy nodes (retime/denoise/defocus/mblur/etc.) can make scripts sluggish for viewer playback and test renders. Manually hunting and disabling nodes is repetitive and increases the chance of forgetting to re-enable before final output.
 
 ## Solution
 
-This tool lets you **toggle / disable / enable** a configurable list of heavy node classes across the script, plus a small UI to edit which classes are treated as “heavy”.
+Provides one menu/hotkey action to toggle a configurable list of node classes by setting only the node `disable` knob, plus a small editor UI to manage that list.
 
 ## Measurable impact
 
