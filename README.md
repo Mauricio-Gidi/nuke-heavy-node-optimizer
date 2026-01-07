@@ -42,10 +42,6 @@ nuke.pluginAddPath("./nuke_optimizer")
 3) Restart Nuke (GUI) → open:
 - `Nuke > Scripts > Optimizer > Toggle heavy nodes`
 
-**Why `init.py` vs `menu.py`:**
-- `init.py` runs for **all** Nuke sessions (including terminal/renders), so it’s the right place to add plugin paths.
-- `menu.py` runs only for **GUI** sessions; this repo’s menu items/hotkey live in `nuke_optimizer/menu.py`, so they appear only when you launch Nuke with a UI.
-
 ## Problem
 
 Heavy nodes (retime/denoise/defocus/mblur/etc.) can make scripts sluggish for viewer playback and test renders. Manually hunting and disabling nodes is repetitive and increases the chance of forgetting to re-enable before final output.
@@ -56,8 +52,7 @@ Provides one menu/hotkey action to toggle a configurable list of node classes by
 
 ## Measurable impact
 
-**Measurable:** preview switching becomes **N manual edits → 1 action** (N = number of heavy nodes in the script).  
-**Demo target:** the procedural demo script will include ~10–30 “heavy” nodes to show the reduction clearly.
+Preview switching becomes **N manual edits → 1 action** (N = number of heavy nodes in the script; the planned demo uses ~10–30 nodes).
 
 ## Features
 
@@ -69,7 +64,7 @@ Provides one menu/hotkey action to toggle a configurable list of node classes by
 ## Requirements / Compatibility
 
 ### Tested (verified)
-- **Windows**: Nuke **13.x**, **15.2v6**, **16.x**
+- **Windows**: Nuke **13.0v10**, **15.2v6**, **16.0v8**
 
 ### Supported (claimed)
 - **Nuke 13+ → Nuke 16+**
@@ -139,14 +134,10 @@ Preset formats (import/export):
 
 ## Logging
 
-### Log file location
-- Windows: `C:\Users\<you>\.nuke\optimizer.log`
+Log file:
+- Windows: `C:\\Users\\<you>\\.nuke\\optimizer.log`
 - macOS: `/Users/<you>/.nuke/optimizer.log`
 - Linux: `/home/<you>/.nuke/optimizer.log`
-
-### Rotation
-- Rotates at ~**1 MB** per file
-- Keeps up to **5** backups: `optimizer.log.1` … `optimizer.log.5`
 
 ## How it works (high-level)
 
@@ -174,22 +165,6 @@ Preset formats (import/export):
 - No classes are active (checked) in the editor
 - No nodes of those classes exist in the script
 - Target nodes lack a `disable` knob (skipped)
-
-### Config doesn’t persist
-- Check the config file path above exists and is writable.
-- Check `optimizer.log` for file I/O warnings.
-
-## Limitations
-
-- Class-based toggling (not per-node).
-- Operates on nodes found via Nuke’s node query API; nodes without a `disable` knob are skipped.
-- No selection-only mode (by design).
-
-## Roadmap (small)
-
-- Add the demo GIF + a procedural demo `.nk`
-- Optional: wrap bulk operations in an undo block
-- Optional: selection-only mode (if requested)
 
 ## License
 
