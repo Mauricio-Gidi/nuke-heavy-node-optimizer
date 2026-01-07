@@ -1,7 +1,19 @@
-
+````markdown
 # nuke-heavy-node-optimizer
 
-A configurable helper for Foundry Nuke that lets you quickly disable, enable, or toggle “heavy” nodes (retiming, defocus, deep, etc.) from the Nuke menu, plus a UI to manage which node classes are treated as heavy.
+A configurable helper for Foundry Nuke that lets you quickly **disable / enable / toggle “heavy” nodes** from the Nuke menu, plus a small UI to manage which node classes are treated as “heavy”.
+
+**Repo-wide correctness guarantees (after applying the planned fixes):**
+- **Global node discovery:** operations and stats scan the *entire script*, including nodes inside **Groups (nested too)**, independent of current UI context. (Uses `nuke.allNodes(..., recurseGroups=True)` semantics; see API docs.)  
+  Reference: https://learn.foundry.com/nuke/developers/140/pythonreference/_autosummary/nuke.allNodes.html
+- **Qt compatibility:** works in **Nuke 13.x (PySide2/Qt5)** and **Nuke 16+ (PySide6/Qt6)** via a small shim (`mvc/qt_compat.py`).  
+  References:  
+  - https://support.foundry.com/hc/en-us/articles/25604028087570-Q100715-How-to-address-Python-PySide-issues-in-Nuke-16  
+  - https://learn.foundry.com/nuke/content/release_notes/16.0/nuke_16.0v1_releasenotes.html  
+  - https://doc.qt.io/qtforpython-6/faq/porting_from2.html
+- **No duplicates / data integrity:** config and presets are canonicalized so:
+  - `classes` has no duplicates (order preserved; first occurrence wins)
+  - `toggled` has no duplicates and is always a subset of `classes`
 
 ---
 
@@ -22,9 +34,20 @@ A configurable helper for Foundry Nuke that lets you quickly disable, enable, or
 
 ---
 
-## Repository layout
+## Compatibility
 
-This is what the repository looks like:
+| Nuke version | Python | Qt binding | Status |
+|---|---:|---|---|
+| Nuke **13.x** | 3.7.7 | PySide2 / Qt5 | Supported |
+| Nuke **16+** | 3.11 | PySide6 / Qt6 | Supported |
+
+References:
+- Nuke 13 Python 3.7.7: https://campaigns.foundry.com/products/nuke-family/releases/13-0  
+- Nuke 16 Qt/PySide 6.5 + Python 3.11: https://learn.foundry.com/nuke/content/release_notes/16.0/nuke_16.0v1_releasenotes.html
+
+---
+
+## Repository layout
 
 ```text
 nuke-heavy-node-optimizer/
@@ -39,6 +62,7 @@ nuke-heavy-node-optimizer/
             dialogs.py
             model.py
             view.py
+            qt_compat.py
         optimizer/
             __init__.py
             config.py
@@ -47,7 +71,7 @@ nuke-heavy-node-optimizer/
             storage.py
 ````
 
-The `nuke_optimizer` folder is the plugin package you will install into Nuke.
+The `nuke_optimizer` folder is the plugin package you install into Nuke.
 
 ---
 
@@ -63,7 +87,7 @@ The `nuke_optimizer` folder is the plugin package you will install into Nuke.
 
 2. **Copy the plugin folder**
 
-   From this repository, copy the entire `nuke_optimizer` directory into your `.nuke` folder, so you end up with:
+   Copy the entire `nuke_optimizer` directory into your `.nuke` folder, so you end up with:
 
    ```text
    ~/.nuke/
@@ -75,8 +99,10 @@ The `nuke_optimizer` folder is the plugin package you will install into Nuke.
                __init__.py
                app.py
                controller.py
+               dialogs.py
                model.py
                view.py
+               qt_compat.py
            optimizer/
                __init__.py
                config.py
@@ -87,7 +113,7 @@ The `nuke_optimizer` folder is the plugin package you will install into Nuke.
 
 3. **Register the plugin path in `init.py`**
 
-   Edit (or create) `~/.nuke/init.py` and add the following line:
+   Edit (or create) `~/.nuke/init.py` and add:
 
    ```python
    import nuke
@@ -96,79 +122,57 @@ The `nuke_optimizer` folder is the plugin package you will install into Nuke.
 
 4. **Start Nuke**
 
-   Launch Nuke. If installed correctly, you should see a new menu entry:
+   Launch Nuke. If installed correctly, you should see:
 
    * `Nuke > Scripts > Optimizer`
-
-   with several commands registered underneath. 
 
 ---
 
 ## What gets created at runtime
 
-When you use the tool, it writes configuration and logs into your `.nuke` folder. The resulting structure will look like:
+When you use the tool, it writes configuration and logs into your `.nuke` folder.
 
-```text
-.nuke/
-    nuke_optimizer/
-        __init__.py
-        menu.py
-        mvc/
-            __init__.py
-            app.py
-            controller.py
-            model.py
-            view.py
-        optimizer/
-            __init__.py
-            config.py
-            defaults.py
-            nuke_services.py
-            storage.py
+* **Config file (JSON):** stored under a tool-specific directory inside `~/.nuke/`.
 
-    nuke_optimizer_data/
-        config.json        # your saved heavy-node config
-    optimizer.log          # rotating log file created by the app
-```
+  * The directory and filename are defined in `nuke_optimizer/optimizer/config.py`.
+  * The `storage` module computes the full path at runtime.
+* **Log file:** `~/.nuke/optimizer.log` (rotating: up to 1 MB per file, 5 backups).
 
-* `nuke_optimizer_data/config.json` holds:
+The config contains:
 
-  * `version`
-  * `classes` (all known heavy classes)
-  * `toggled` (which classes are currently active).  
-* `optimizer.log` collects runtime information and warnings from the tool. 
+* `version`
+* `classes` (all known heavy classes)
+* `toggled` (which classes are currently active)
 
 ---
 
 ## Usage
 
-Once installed and Nuke is running:
-
 1. Open **Scripts → Optimizer → Optimizer editor**
-   This opens the main Optimizer window (a small PySide2-based panel).  
+   This opens the Optimizer window (Qt/PySide panel; binding depends on your Nuke version).
 
 2. In the panel you can:
 
    * See a list of known heavy node classes.
-   * Check/uncheck which classes should be treated as heavy in the current configuration.
+   * Check/uncheck which classes are treated as heavy in the current configuration.
    * Filter the list by typing in the filter box.
    * Add classes from the currently selected nodes in your script.
    * Remove selected classes.
    * Export/import presets.
-   * Reset to factory defaults.   
+   * Reset to factory defaults.
 
 3. To operate on the script:
 
    * Use **Scripts → Optimizer → Toggle heavy nodes** to toggle all active heavy nodes.
-   * Use **Disable Heavy Nodes** or **Enable Heavy Nodes** for one-way operations.  
+   * Use **Disable Heavy Nodes** or **Enable Heavy Nodes** for one-way operations.
 
-The tool computes statistics (total and disabled counts per class) and displays them in the list as you work.  
+**Important behavior:** node discovery is **global** and includes nodes inside **Groups (recursively)**; operations do not depend on your current group/context.
 
 ---
 
 ## Heavy node classes (defaults)
 
-Out of the box, the tool ships with a curated list of render-intensive node classes, which you can then customize:
+Out of the box, the tool ships with a curated list of render-intensive node classes, which you can customize:
 
 * Retiming:
 
@@ -190,42 +194,34 @@ Out of the box, the tool ships with a curated list of render-intensive node clas
   * `Denoise2`
 * Deep:
 
-  * `DeepRecolor` 
-
-The UI allows you to add/remove classes and save them to your user config.
+  * `DeepRecolor`
 
 ---
 
 ## Configuration and presets
 
-* Persistent configuration is loaded and validated from `config.json`. If it is missing or invalid, the tool safely falls back to defaults and rewrites the file.  
-* You can export/import presets as:
+* Persistent configuration is loaded and validated from `config.json`.
+* If it is missing or invalid, the tool safely falls back to defaults and rewrites the file.
+* Duplicates are removed and `toggled` is kept as a subset of `classes` during load/save and preset import.
 
-  * **JSON**: includes `version`, `classes`, and `toggled`.
-  * **CSV**: with columns `class` and optional `toggled`. 
+Preset formats:
 
-Presets make it easy to share heavy-node lists between artists or shows.
-
----
-
-## Logging
-
-The application writes to `~/.nuke/optimizer.log` using a rotating file handler (up to 1 MB per file, 5 backups). 
-
-If something does not behave as expected, you can inspect this log or share it with whoever is maintaining the tool.
+* **JSON**: includes `version`, `classes`, and `toggled`.
+* **CSV**: columns `class` and optional `toggled` (`1/0`, `true/false`, `yes/no`).
 
 ---
 
-## Requirements
+## Troubleshooting
 
-* Foundry Nuke with Python support.
-* PySide2 available in the Nuke Python environment (used by the UI).   
+* **Nuke 16+ import error for PySide2:** if you have older custom scripts importing `PySide2`, Nuke 16+ can fail with `ModuleNotFoundError: No module named 'PySide2'`. Foundry guidance:
+  [https://support.foundry.com/hc/en-us/articles/25604028087570-Q100715-How-to-address-Python-PySide-issues-in-Nuke-16](https://support.foundry.com/hc/en-us/articles/25604028087570-Q100715-How-to-address-Python-PySide-issues-in-Nuke-16)
+* Check the log at `~/.nuke/optimizer.log` for warnings and errors.
 
 ---
 
 ## License
 
-Copyright (c) 2025 Mauricio Gidi  
+Copyright (c) 2025 Mauricio Gidi
 
-This project is licensed under the **MIT License**.  
+This project is licensed under the **MIT License**.
 See the [LICENSE](LICENSE) file in this repository for the complete license text.
