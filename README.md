@@ -1,4 +1,3 @@
-````markdown
 # nuke-heavy-node-optimizer
 
 A configurable helper for Foundry Nuke that lets you quickly **disable / enable / toggle “heavy” nodes** from the Nuke menu, plus a small UI to manage which node classes are treated as “heavy”.
@@ -69,7 +68,7 @@ nuke-heavy-node-optimizer/
             defaults.py
             nuke_services.py
             storage.py
-````
+```
 
 The `nuke_optimizer` folder is the plugin package you install into Nuke.
 
@@ -132,39 +131,35 @@ The `nuke_optimizer` folder is the plugin package you install into Nuke.
 
 When you use the tool, it writes configuration and logs into your `.nuke` folder.
 
-* **Config file (JSON):** stored under a tool-specific directory inside `~/.nuke/`.
-
-  * The directory and filename are defined in `nuke_optimizer/optimizer/config.py`.
-  * The `storage` module computes the full path at runtime.
-* **Log file:** `~/.nuke/optimizer.log` (rotating: up to 1 MB per file, 5 backups).
+- **Config file (JSON):** stored under a tool-specific directory inside `~/.nuke/`.
+  - The directory and filename are defined in `nuke_optimizer/optimizer/config.py`.
+  - The `storage` module computes the full path at runtime.
+- **Log file:** `~/.nuke/optimizer.log` (rotating: up to 1 MB per file, 5 backups).
 
 The config contains:
-
-* `version`
-* `classes` (all known heavy classes)
-* `toggled` (which classes are currently active)
+- `version`
+- `classes` (all known heavy classes)
+- `toggled` (which classes are currently active)
 
 ---
 
 ## Usage
 
-1. Open **Scripts → Optimizer → Optimizer editor**
+1. Open **Scripts → Optimizer → Optimizer editor**  
    This opens the Optimizer window (Qt/PySide panel; binding depends on your Nuke version).
 
 2. In the panel you can:
-
-   * See a list of known heavy node classes.
-   * Check/uncheck which classes are treated as heavy in the current configuration.
-   * Filter the list by typing in the filter box.
-   * Add classes from the currently selected nodes in your script.
-   * Remove selected classes.
-   * Export/import presets.
-   * Reset to factory defaults.
+   - See a list of known heavy node classes.
+   - Check/uncheck which classes are treated as heavy in the current configuration.
+   - Filter the list by typing in the filter box.
+   - Add classes from the currently selected nodes in your script.
+   - Remove selected classes.
+   - Export/import presets.
+   - Reset to factory defaults.
 
 3. To operate on the script:
-
-   * Use **Scripts → Optimizer → Toggle heavy nodes** to toggle all active heavy nodes.
-   * Use **Disable Heavy Nodes** or **Enable Heavy Nodes** for one-way operations.
+   - Use **Scripts → Optimizer → Toggle heavy nodes** to toggle all active heavy nodes.
+   - Use **Disable Heavy Nodes** or **Enable Heavy Nodes** for one-way operations.
 
 **Important behavior:** node discovery is **global** and includes nodes inside **Groups (recursively)**; operations do not depend on your current group/context.
 
@@ -174,48 +169,42 @@ The config contains:
 
 Out of the box, the tool ships with a curated list of render-intensive node classes, which you can customize:
 
-* Retiming:
-
-  * `Kronos`
-  * `OFlow2`
-  * `TimeBlur`
-* Motion blur:
-
-  * `MotionBlur`
-  * `MotionBlur3D`
-  * `VectorBlur2`
-* Defocus / bokeh:
-
-  * `Defocus`
-  * `ZDefocus2`
-  * `Convolve2`
-* Denoise:
-
-  * `Denoise2`
-* Deep:
-
-  * `DeepRecolor`
+- Retiming:
+  - `Kronos`
+  - `OFlow2`
+  - `TimeBlur`
+- Motion blur:
+  - `MotionBlur`
+  - `MotionBlur3D`
+  - `VectorBlur2`
+- Defocus / bokeh:
+  - `Defocus`
+  - `ZDefocus2`
+  - `Convolve2`
+- Denoise:
+  - `Denoise2`
+- Deep:
+  - `DeepRecolor`
 
 ---
 
 ## Configuration and presets
 
-* Persistent configuration is loaded and validated from `config.json`.
-* If it is missing or invalid, the tool safely falls back to defaults and rewrites the file.
-* Duplicates are removed and `toggled` is kept as a subset of `classes` during load/save and preset import.
+- Persistent configuration is loaded and validated from `config.json`.
+- If it is missing or invalid, the tool safely falls back to defaults and rewrites the file.
+- Duplicates are removed and `toggled` is kept as a subset of `classes` during load/save and preset import.
 
 Preset formats:
-
-* **JSON**: includes `version`, `classes`, and `toggled`.
-* **CSV**: columns `class` and optional `toggled` (`1/0`, `true/false`, `yes/no`).
+- **JSON**: includes `version`, `classes`, and `toggled`.
+- **CSV**: columns `class` and optional `toggled` (`1/0`, `true/false`, `yes/no`).
 
 ---
 
 ## Troubleshooting
 
-* **Nuke 16+ import error for PySide2:** if you have older custom scripts importing `PySide2`, Nuke 16+ can fail with `ModuleNotFoundError: No module named 'PySide2'`. Foundry guidance:
-  [https://support.foundry.com/hc/en-us/articles/25604028087570-Q100715-How-to-address-Python-PySide-issues-in-Nuke-16](https://support.foundry.com/hc/en-us/articles/25604028087570-Q100715-How-to-address-Python-PySide-issues-in-Nuke-16)
-* Check the log at `~/.nuke/optimizer.log` for warnings and errors.
+- **Nuke 16+ import error for PySide2:** if you have older custom scripts importing `PySide2`, Nuke 16+ can fail with `ModuleNotFoundError: No module named 'PySide2'`. Foundry guidance:  
+  https://support.foundry.com/hc/en-us/articles/25604028087570-Q100715-How-to-address-Python-PySide-issues-in-Nuke-16
+- Check the log at `~/.nuke/optimizer.log` for warnings and errors.
 
 ---
 
@@ -223,5 +212,5 @@ Preset formats:
 
 Copyright (c) 2025 Mauricio Gidi
 
-This project is licensed under the **MIT License**.
+This project is licensed under the **MIT License**.  
 See the [LICENSE](LICENSE) file in this repository for the complete license text.
