@@ -39,6 +39,7 @@ nuke.pluginAddPath("./nuke_optimizer")
 
 3) Restart Nuke (GUI) → open:
 - `Nuke > Scripts > Optimizer > Toggle heavy nodes`
+
 **Why `init.py` (startup behavior):**
 - `init.py` runs for **all** Nuke sessions (including terminal/renders), so it’s the right place to add plugin paths.
 - `menu.py` runs only for **GUI** sessions; this repo’s menu items/hotkey live in `nuke_optimizer/menu.py`, so they appear only when you launch Nuke with a UI. :contentReference[oaicite:2]{index=2}
