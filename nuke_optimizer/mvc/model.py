@@ -9,6 +9,7 @@ The model itself is deliberately simple and in-memory only; it performs
 no file I/O and knows nothing about Qt or the Nuke API.
 """
 
+from __future__ import annotations
 
 from typing import Iterable, Optional
 
@@ -42,21 +43,33 @@ class Model:
     def replace_all(self, list_of_classes: Iterable[str]) -> None:
         """Replace all class names with a new ordered collection.
 
-        The incoming iterable is assumed to be:
+        Incoming values are normalized defensively:
 
-        * already normalized (for example, stripped of whitespace),
-        * free of duplicates, and
-        * in the desired final order.
+        * Non-strings are ignored.
+        * Strings are stripped of surrounding whitespace.
+        * Empty results are discarded.
+        * Duplicates are removed while preserving the first occurrence.
 
-        If the new sequence is identical to the current one, this is a no-op
-        to avoid unnecessary churn for callers.
+        If the new normalized sequence is identical to the current one,
+        this is a no-op to avoid unnecessary churn for callers.
 
         Args:
             list_of_classes: Iterable of class names to store.
         """
-        incoming = list(list_of_classes)
+        incoming: list[str] = []
+        seen: set[str] = set()
+        for x in list_of_classes:
+            if not isinstance(x, str):
+                continue
+            name = x.strip()
+            if not name or name in seen:
+                continue
+            seen.add(name)
+            incoming.append(name)
+
         if incoming == self._items:
             return
+
         self._items = incoming
         self._set = set(incoming)
 
