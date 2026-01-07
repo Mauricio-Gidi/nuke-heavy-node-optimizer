@@ -66,7 +66,7 @@ Preview switching becomes **N manual edits → 1 action** (N = number of heavy n
 ### Tested (verified)
 - **Windows**: Nuke **13.0v10**, **15.2v6**, **16.0v8**
 
-### Supported (claimed)
+### Expected to work (untested)
 - **Nuke 13+ → Nuke 16+**
 - Nuke 16+ uses **PySide6 / Qt 6.5** (and Python 3.11).  
   This repo includes a small Qt compatibility shim (`mvc/qt_compat.py`) to run on both:
