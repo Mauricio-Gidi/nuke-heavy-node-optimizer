@@ -1,15 +1,10 @@
 # Nuke Heavy Node Optimizer (`nuke-heavy-node-optimizer`)
 
-Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across the whole script, with a small editor UI to manage the class list.
+Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across a script, with a small editor UI to manage the class list.
 
 - Menu: `Nuke > Scripts > Optimizer`
 - Hotkey: **Ctrl+Alt+O**
-- Safety: only touches the node’s `disable` knob
-
-**Highlights**
-- One hotkey toggles **N heavy nodes** (N→1 action)
-- Tested on **Windows** (Nuke 13.x, 15.2v6, 16.x)
-- Only modifies the `disable` knob (low-risk change)
+- Safety: only touches each node’s `disable` knob
 
 ## Demo
 
@@ -17,10 +12,12 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 ![Toggle heavy nodes demo](media/demo_toggle.gif)
 -->
 
+Short demo (coming next): one hotkey toggles **N heavy nodes** (**N→1 action**).
+
 **Planned 10–20s GIF (procedural / no external footage):**
 1. Show Node Graph + Viewer with the “heavy nodes” chain **enabled**.
 2. Briefly show: `Nuke > Scripts > Optimizer`.
-3. Trigger **Toggle heavy nodes** (Ctrl+Alt+O) → heavy nodes go **disabled** (visible in graph) and Viewer output changes.
+3. Trigger **Toggle heavy nodes** (Ctrl+Alt+O) → nodes go **disabled** (visible in graph) and Viewer output changes.
 4. Optional: toggle again for a quick **A/B/A** loop.
 5. Optional (1–2s): open **Optimizer editor** to show the class list is configurable.
 
@@ -30,9 +27,24 @@ Planned screenshots:
 
 ## Quick start
 
-1) Copy `nuke_optimizer/` into your `.nuke` directory (see Installation).
-2) Add `nuke.pluginAddPath("./nuke_optimizer")` in `~/.nuke/init.py`.
-3) Restart Nuke (GUI) → `Nuke > Scripts > Optimizer > Toggle heavy nodes`.
+1) Copy `nuke_optimizer/` into your `.nuke` directory:
+- Windows: `C:\Users\<you>\.nuke\`
+- macOS: `/Users/<you>/.nuke/`
+- Linux: `/home/<you>/.nuke/`
+
+2) Add this to `~/.nuke/init.py` (create if needed):
+
+```python
+import nuke
+nuke.pluginAddPath("./nuke_optimizer")
+```
+
+3) Restart Nuke (GUI) → open:
+- `Nuke > Scripts > Optimizer > Toggle heavy nodes`
+
+**Why `init.py` vs `menu.py`:**
+- `init.py` runs for **all** Nuke sessions (including terminal/renders), so it’s the right place to add plugin paths.
+- `menu.py` runs only for **GUI** sessions; this repo’s menu items/hotkey live in `nuke_optimizer/menu.py`, so they appear only when you launch Nuke with a UI.
 
 ## Problem
 
@@ -47,6 +59,13 @@ Provides one menu/hotkey action to toggle a configurable list of node classes by
 **Measurable:** preview switching becomes **N manual edits → 1 action** (N = number of heavy nodes in the script).  
 **Demo target:** the procedural demo script will include ~10–30 “heavy” nodes to show the reduction clearly.
 
+## Features
+
+- Toggle / Disable / Enable heavy nodes (by Class)
+- Editor UI to manage the class list (and choose which classes are active)
+- Config saved to JSON
+- Rotating log file for debugging
+
 ## Requirements / Compatibility
 
 ### Tested (verified)
@@ -54,48 +73,19 @@ Provides one menu/hotkey action to toggle a configurable list of node classes by
 
 ### Supported (claimed)
 - **Nuke 13+ → Nuke 16+**
-- Nuke 16+ uses **PySide6 / Qt 6.5** (and Python 3.11). This repo includes a small Qt compatibility shim (`mvc/qt_compat.py`) to run on both:
+- Nuke 16+ uses **PySide6 / Qt 6.5** (and Python 3.11).  
+  This repo includes a small Qt compatibility shim (`mvc/qt_compat.py`) to run on both:
   - **PySide2 / Qt5** (Nuke 13–15)
   - **PySide6 / Qt6** (Nuke 16+)
 
 ### Not tested
 - **macOS / Linux** (expected to work, but not currently in the test matrix)
 
-## Installation (per-user `.nuke`)
-
-1) Copy `nuke_optimizer/` into your `.nuke` directory:
-- Windows: `C:\Users\<you>\.nuke\`
-- macOS: `/Users/<you>/.nuke/`
-- Linux: `/home/<you>/.nuke/`
-
-2) Add this to `~/.nuke/init.py` (create if needed):
-
-```python
-import nuke
-nuke.pluginAddPath("./nuke_optimizer")
-```
-
-2.5) Verify Nuke can see the plugin path (optional but recommended)
-
-In Nuke’s Script Editor:
-
-```python
-import nuke
-print(nuke.pluginPath())
-```
-
-3) Restart Nuke (GUI) → open:
-- `Nuke > Scripts > Optimizer > Toggle heavy nodes`
-
-**Why `init.py` vs `menu.py` (startup behavior):**
-- `init.py` runs for **all** Nuke sessions (including terminal/renders), so it’s the right place to add plugin paths.
-- `menu.py` runs only for **GUI** sessions; this repo’s menu items/hotkey live in `nuke_optimizer/menu.py`, so they appear only when you launch Nuke with a UI.
-- Note: in terminal/render-only sessions, `menu.py` won’t run, so menu items/hotkeys won’t appear (this is expected).
-
 ## Usage
 
 ### Behavior definitions
-- **Heavy class**: a node class name listed in the Optimizer editor (e.g., `ZDefocus2`, `TimeBlur`).
+
+- **Heavy class**: a node class name listed in the Optimizer editor (e.g., `ZDefocus`, `TimeBlur`).
 - **Active class**: a heavy class that is currently checked/enabled in the editor (the tool only operates on these).
 - **Target nodes**: all nodes in the current script whose `Class()` is an active class **and** that expose a `disable` knob.
 - **Enabled vs disabled**: `disable = False` means the node is enabled; `disable = True` means the node is disabled.
@@ -123,8 +113,6 @@ In the editor you can:
 ## Configuration (file + schema)
 
 ### Config file location
-The tool stores its config under your **user `.nuke`** directory:
-
 - Windows: `C:\Users\<you>\.nuke\nuke_optimizer_data\config.json`
 - macOS: `/Users/<you>/.nuke/nuke_optimizer_data/config.json`
 - Linux: `/home/<you>/.nuke/nuke_optimizer_data/config.json`
@@ -133,25 +121,21 @@ The tool stores its config under your **user `.nuke`** directory:
 ```json
 {
   "version": 1,
-  "classes": ["Kronos", "ZDefocus2"],
-  "toggled": ["Kronos"]
+  "classes": ["ZDefocus", "TimeBlur"],
+  "toggled": ["ZDefocus"]
 }
 ```
 
-- `classes`: ordered list of node **Class** names shown in the editor.
-- `toggled`: subset of `classes` that are currently **active** (checked in the editor).
-- First run behavior: the default list is present, and **nothing is active** until you check classes.
-
-### When it writes to disk
-- The editor auto-saves shortly after edits (check/uncheck, add/remove, reorder, import, reset defaults).
+- `classes`: ordered list of node Class names shown in the editor.
+- `toggled`: subset of `classes` that are currently active (checked).
+- Default on first run: `toggled` is empty (nothing active until you check classes).
 
 ### Reset / recovery
-- Use **Optimizer editor → Reset defaults**.
-- Or delete the config file; it will be recreated on next run.
+- Use **Optimizer editor → Reset defaults** (restores default class list), or delete the config file and restart Nuke.
 
-### Presets (import/export)
+Preset formats (import/export):
 - JSON: `{"version": <int>, "classes": [...], "toggled": [...]}`
-- CSV: `class,toggled` (toggled supports `1/0`, `true/false`, `yes/no`)
+- CSV: `class,toggled`
 
 ## Logging
 
@@ -164,34 +148,49 @@ The tool stores its config under your **user `.nuke`** directory:
 - Rotates at ~**1 MB** per file
 - Keeps up to **5** backups: `optimizer.log.1` … `optimizer.log.5`
 
-### Need more detail?
-- Set the log level to `DEBUG` in `mvc/app.py` (`LOG_LEVEL = logging.DEBUG`).
-
 ## How it works (high-level)
 
-- `menu.py` registers menu commands/hotkeys (GUI sessions).
-- `nuke_services.py` finds target nodes and sets the `disable` knob.
-- The editor UI (MVC) updates the class list and persists config.
+- `menu.py` registers menu commands and the hotkey (GUI sessions).
+- The editor UI (MVC) updates the class list and persists it to JSON.
+- Actions load config, find nodes by class via Nuke’s API, then set each node’s `disable` knob.
 
 ## Troubleshooting
 
-### Menu doesn’t appear
-- Confirm the folder is in the plugin path (Script Editor): `print(nuke.pluginPath())`
-- Restart Nuke (GUI).
+### Menu or hotkey doesn’t appear
+- Confirm you are launching Nuke with a **GUI** (menu.py doesn’t run in terminal sessions).
+- In Script Editor:
+  ```python
+  import nuke
+  print(nuke.pluginPath())
+  ```
+  Confirm your `.nuke` path (and/or `./nuke_optimizer`) is listed, then restart Nuke.
 
 ### `ModuleNotFoundError: No module named 'PySide2'` in Nuke 16+
 - Nuke 16+ uses PySide6; any plugin importing PySide2 directly will fail.
-- This repo uses a compatibility shim, but check custom/local edits and other plugins first.
+- This repo uses a compatibility shim; if you edited imports, revert to the shim approach.
+- Check `optimizer.log` for the exact failing module.
 
-### Tool does nothing
-- No classes are toggled in the editor
+### “Tool does nothing”
+- No classes are active (checked) in the editor
 - No nodes of those classes exist in the script
 - Target nodes lack a `disable` knob (skipped)
 
+### Config doesn’t persist
+- Check the config file path above exists and is writable.
+- Check `optimizer.log` for file I/O warnings.
+
+## Limitations
+
+- Class-based toggling (not per-node).
+- Operates on nodes found via Nuke’s node query API; nodes without a `disable` knob are skipped.
+- No selection-only mode (by design).
+
 ## Roadmap (small)
-- Add demo GIF + procedural demo `.nk`
-- Optional: undo block around bulk toggles
+
+- Add the demo GIF + a procedural demo `.nk`
+- Optional: wrap bulk operations in an undo block
 - Optional: selection-only mode (if requested)
 
 ## License
+
 MIT License. See [LICENSE](LICENSE).
