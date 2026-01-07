@@ -37,12 +37,22 @@ import nuke
 nuke.pluginAddPath("./nuke_optimizer")
 ```
 
+2.5) Verify Nuke can see the plugin path (optional but recommended)
+
+In Nuke’s Script Editor:
+
+```python
+import nuke
+print(nuke.pluginPath())
+```
+
 3) Restart Nuke (GUI) → open:
 - `Nuke > Scripts > Optimizer > Toggle heavy nodes`
 
-**Why `init.py` (startup behavior):**
+**Why `init.py` vs `menu.py` (startup behavior):**
 - `init.py` runs for **all** Nuke sessions (including terminal/renders), so it’s the right place to add plugin paths.
-- `menu.py` runs only for **GUI** sessions; this repo’s menu items/hotkey live in `nuke_optimizer/menu.py`, so they appear only when you launch Nuke with a UI. :contentReference[oaicite:2]{index=2}
+- `menu.py` runs only for **GUI** sessions; this repo’s menu items/hotkey live in `nuke_optimizer/menu.py`, so they appear only when you launch Nuke with a UI.
+- Note: in terminal/render-only sessions, `menu.py` won’t run, so menu items/hotkeys won’t appear (this is expected).
 
 ## Problem
 
@@ -122,8 +132,7 @@ Preset formats (import/export):
 ## Troubleshooting
 
 ### Menu doesn’t appear
-- Confirm the folder is in the plugin path (Script Editor):
-  `print(nuke.pluginPath())`
+- Confirm the folder is in the plugin path (Script Editor): `print(nuke.pluginPath())`
 - Restart Nuke (GUI).
 
 ### `ModuleNotFoundError: No module named 'PySide2'` in Nuke 16+
