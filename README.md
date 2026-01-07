@@ -9,21 +9,24 @@ A small Nuke Python tool that helps you **bulk disable / enable / toggle “heav
 
 ---
 
-## Compatibility (what we claim)
+## Compatibility
 
-### Supported
-- **Nuke 13+** (Python 3.7.7, Qt5/PySide2) through **Nuke 16+** (Python 3.11, Qt6/PySide6)
+### Tested (verified)
+- **Windows**: Nuke **13.x**, **15.2v6**, **16.x**
 
-### Tested
-- **Windows**: Nuke **13.x**, **15.x** and **16.x**  
-  *(Other OSes should work; they’re just not the primary test target.)*
+### Supported (claimed)
+- **Nuke 13+ → Nuke 16+**
+  - Nuke 13+ is Python 3-only (3.7+ era). :contentReference[oaicite:2]{index=2}
+  - Nuke 16+ uses **PySide6 / Qt 6.5** (VFX Reference Platform 2024). :contentReference[oaicite:3]{index=3}
 
-**Why this matters:** Nuke 16+ uses **PySide6** and will error on startup if plugins import **PySide2** directly. This repo uses a small shim (`mvc/qt_compat.py`) to run in both environments.
+This repo includes a small Qt compatibility shim (`mvc/qt_compat.py`) so the UI runs in both:
+- **PySide2 / Qt5** (Nuke 13–15)
+- **PySide6 / Qt6** (Nuke 16+)
 
-References:
-- Nuke 13 → Python 3.7.7: https://campaigns.foundry.com/products/nuke-family/releases/13-0
-- Nuke 16.0v1 → Python 3.11, Qt/PySide 6.5: https://learn.foundry.com/nuke/content/release_notes/16.0/nuke_16.0v1_releasenotes.html
-- Foundry note about PySide2 breaking in Nuke 16+: https://support.foundry.com/hc/en-us/articles/25604028087570-Q100715-How-to-address-Python-PySide-issues-in-Nuke-16
+> Note: Nuke 16+ will raise `ModuleNotFoundError: No module named 'PySide2'` if a plugin imports PySide2 directly; Foundry’s guidance is to update code to PySide6 (and watch for changes like `QAction` moving modules). :contentReference[oaicite:4]{index=4}
+
+### Not tested
+- **macOS / Linux** (expected to work, but not currently part of the test matrix)
 
 ---
 
