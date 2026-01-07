@@ -9,10 +9,12 @@ configuration dictionary; that helper will create, migrate, or reset
 the on-disk file as required and always return a sane configuration.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from optimizer import config
 
@@ -28,6 +30,48 @@ class StorageError(Exception):
     schema, or outdated version). Callers can catch this and decide
     whether to fall back to defaults.
     """
+
+
+def _unique_preserve_order(values: Any) -> list[str]:
+    """Return a list of unique, stripped strings preserving first occurrence.
+
+    Non-strings are ignored. Empty/whitespace-only strings are discarded.
+    """
+    if not isinstance(values, list):
+        return []
+
+    out: list[str] = []
+    seen: set[str] = set()
+
+    for x in values:
+        if not isinstance(x, str):
+            continue
+        s = x.strip()
+        if not s or s in seen:
+            continue
+        seen.add(s)
+        out.append(s)
+
+    return out
+
+
+def _canonicalize(data: dict[str, Any]) -> dict[str, Any]:
+    """Canonicalize config data in-place and return it.
+
+    Ensures:
+      - `classes` has no duplicates (order preserved, first occurrence wins)
+      - `toggled` has no duplicates (order preserved)
+      - `toggled` is a subset of `classes`
+    """
+    classes = _unique_preserve_order(data.get("classes", []))
+    toggled = _unique_preserve_order(data.get("toggled", []))
+
+    allowed = set(classes)
+    toggled = [name for name in toggled if name in allowed]
+
+    data["classes"] = classes
+    data["toggled"] = toggled
+    return data
 
 
 def safe_load_or_default() -> dict[str, Any]:
@@ -69,6 +113,7 @@ def safe_load_or_default() -> dict[str, Any]:
             "classes": list(defaults.RENDER_INTENSIVE_NODES),
             "toggled": [],  # default: nothing checked
         }
+        _canonicalize(data)
         try:
             save(data)
         except OSError as save_err:
@@ -100,17 +145,17 @@ def load() -> dict[str, Any]:
 
     try:
         with p.open("r", encoding="utf-8") as fh:
-            data: dict[str, Any] = json.load(fh)
+            data = json.load(fh)
     except json.JSONDecodeError as e:
         raise StorageError(f"Config is not valid JSON: {p}") from e
     except OSError:
         # Re-raise unexpected I/O errors to the caller.
         raise
 
-    if not validate(data):
+    if not isinstance(data, dict) or not validate(data):
         raise StorageError(f"Invalid config schema: {p}")
 
-    return data
+    return _canonicalize(data)
 
 
 def save(metadata: dict[str, Any]) -> None:
@@ -145,12 +190,19 @@ def save(metadata: dict[str, Any]) -> None:
     # --- light normalization (add a 'toggled' list if missing)
     if "version" not in metadata:
         metadata["version"] = config.CONFIG_VERSION
-    if "classes" not in metadata:
+    if "classes" not in metadata or not isinstance(metadata.get("classes"), list):
         from optimizer import defaults
 
         metadata["classes"] = list(defaults.RENDER_INTENSIVE_NODES)
+    else:
+        # Keep only strings; `_canonicalize` will strip, drop empties, and dedupe.
+        metadata["classes"] = [x for x in metadata["classes"] if isinstance(x, str)]
     if "toggled" not in metadata or not isinstance(metadata["toggled"], list):
         metadata["toggled"] = []
+    else:
+        metadata["toggled"] = [x for x in metadata["toggled"] if isinstance(x, str)]
+
+    _canonicalize(metadata)
 
     with p.open("w", encoding="utf-8") as fh:
         json.dump(metadata, fh, indent=2, ensure_ascii=False)
