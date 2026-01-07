@@ -9,13 +9,35 @@ signals, and applies debounced refresh/save operations so the UI remains
 responsive while heavy-node statistics are recomputed.
 """
 
+from __future__ import annotations
+
 import logging
-from PySide2 import QtWidgets, QtCore
+from typing import Optional, Iterable, List, Set, Tuple
+
+# Qt binding compatibility (PySide2 / PySide6) is provided repo-wide.
+# Assumes mvc/qt_compat.py exists after the agreed fixes are applied.
+from mvc.qt_compat import QtWidgets, QtCore, CHECKED, UNCHECKED, PARTIALLY_CHECKED
+
 from optimizer import storage, config, defaults
 from mvc.dialogs import DialogService
 
 
 logger = logging.getLogger(__name__)
+
+
+def _unique_preserve_order(values: Iterable[str]) -> List[str]:
+    """Deduplicate string values while preserving first occurrence order."""
+    out: List[str] = []
+    seen: Set[str] = set()
+    for x in values:
+        if not isinstance(x, str):
+            continue
+        s = x.strip()
+        if not s or s in seen:
+            continue
+        seen.add(s)
+        out.append(s)
+    return out
 
 
 class Controller:
@@ -31,7 +53,6 @@ class Controller:
     a `QSignalBlocker` during batch operations to avoid storms of itemChanged
     signals.
     """
-
 
     def __init__(self, view, model):
         """Initialize the controller and wire the view and model together.
@@ -105,7 +126,7 @@ class Controller:
         # Coalesce multiple calls into one refresh.
         self._refresh_timer.start(delay_ms)
 
-    def _schedule_persist_state(self, delay_ms: int | None = None) -> None:
+    def _schedule_persist_state(self, delay_ms: Optional[int] = None) -> None:
         """Schedule a debounced write of the current configuration.
 
         Args:
@@ -145,15 +166,17 @@ class Controller:
         """
         data = storage.safe_load_or_default()
         classes = data.get("classes", list(defaults.RENDER_INTENSIVE_NODES))
-        toggled = set(data.get("toggled", []))
+        toggled_list = data.get("toggled", [])
 
         # Seed the authoritative list (order + membership).
         self.model.replace_all(classes)
 
         # Paint the list: start unchecked, then enable only persisted toggles.
         self.view.set_items(self.model.as_list(), checked=False)
-        for name in toggled:
-            self.view.set_item_checked(name, True)
+        toggled_set = set(toggled_list)
+        for name in self.model.as_list():
+            if name in toggled_set:
+                self.view.set_item_checked(name, True)
 
         # Keep tri-state (Unchecked/Partially/Checked) truthful.
         self.view.sync_select_all_from_items()
@@ -186,13 +209,9 @@ class Controller:
             lambda state: self._on_select_all_state_changed(state)
         )
 
-        self.view.list_widget.itemChanged.connect(
-            lambda item: self._on_item_changed(item)
-        )
+        self.view.list_widget.itemChanged.connect(lambda item: self._on_item_changed(item))
 
-        self.view.list_widget.model().rowsMoved.connect(
-            lambda *args: self._on_list_reordered()
-        )
+        self.view.list_widget.model().rowsMoved.connect(lambda *args: self._on_list_reordered())
 
     # --------------------------------------------------------------------- #
     # Handlers: view → controller                                           #
@@ -229,9 +248,7 @@ class Controller:
 
         classes = nuke_services.selected_class_names()
         if not classes:
-            self.dialogs.warn(
-                self.view, "No nodes selected", "Select one or more nodes."
-            )
+            self.dialogs.warn(self.view, "No nodes selected", "Select one or more nodes.")
             return
 
         noun = f"class{'es' if len(classes) != 1 else ''}"
@@ -328,9 +345,9 @@ class Controller:
 
         The incoming state is interpreted as:
 
-        - ``Qt.Checked`` → check all items.
-        - ``Qt.Unchecked`` → uncheck all items.
-        - ``Qt.PartiallyChecked`` → treated as “check all” for mixed state.
+        - Checked → check all items.
+        - Unchecked → uncheck all items.
+        - Partially checked → treated as “check all” for mixed state.
 
         After applying the state, the method resynchronizes the tri-state
         checkbox, schedules a debounced configuration write, and
@@ -341,10 +358,14 @@ class Controller:
                 Select-all checkbox.
         """
         try:
-            state = QtCore.Qt.CheckState(state)
+            # Convert the raw int state to the correct enum type for the active Qt binding.
+            try:
+                state_enum = QtCore.Qt.CheckState(state)
+            except Exception:
+                state_enum = state
 
-            if state == QtCore.Qt.PartiallyChecked:
-                state = QtCore.Qt.Checked
+            if state_enum == PARTIALLY_CHECKED:
+                state_enum = CHECKED
 
             # Prevent storms of itemChanged signals during bulk updates.
             blocker = QtCore.QSignalBlocker(self.view.list_widget)
@@ -353,7 +374,7 @@ class Controller:
                     item = self.view.list_widget.item(i)
                     if item is None:
                         continue
-                    item.setCheckState(state)
+                    item.setCheckState(state_enum)
             finally:
                 del blocker
 
@@ -393,7 +414,8 @@ class Controller:
         fmt = "csv" if lower.endswith(".csv") else "json"
 
         classes = list(self.model.as_list())
-        toggled_set = set(self.view.get_enabled_names())
+        enabled_set = set(self.view.get_enabled_names())
+        toggled_list = [name for name in classes if name in enabled_set]
 
         try:
             if fmt == "csv":
@@ -403,21 +425,19 @@ class Controller:
                     writer = csv.writer(fh)
                     writer.writerow(["class", "toggled"])
                     for name in classes:
-                        writer.writerow([name, "1" if name in toggled_set else "0"])
+                        writer.writerow([name, "1" if name in enabled_set else "0"])
             else:
                 import json
 
                 data = {
                     "version": config.CONFIG_VERSION,
                     "classes": classes,
-                    "toggled": list(toggled_set),
+                    "toggled": toggled_list,
                 }
                 with open(path, "w", encoding="utf-8") as fh:
                     json.dump(data, fh, indent=2, ensure_ascii=False)
         except Exception as e:
-            self.dialogs.error(
-                self.view, "Export failed", f"Could not export preset:\n{e}"
-            )
+            self.dialogs.error(self.view, "Export failed", f"Could not export preset:\n{e}")
             return
 
         self.view.show_status("Preset exported.", kind="success", timeout_ms=2500)
@@ -446,21 +466,22 @@ class Controller:
         try:
             classes, toggled = self._load_preset_file(path)
         except Exception as e:
-            self.dialogs.error(
-                self.view, "Import failed", f"Could not import preset:\n{e}"
-            )
+            self.dialogs.error(self.view, "Import failed", f"Could not import preset:\n{e}")
             return
 
         try:
             self.model.replace_all(classes)
             self.view.set_items(self.model.as_list(), checked=False)
-            for name in toggled:
-                self.view.set_item_checked(name, True)
+
+            # Apply toggles in view order for deterministic behavior.
+            for name in self.model.as_list():
+                if name in toggled:
+                    self.view.set_item_checked(name, True)
 
             self.view.sync_select_all_from_items()
 
             if self._persist_state():
-                total = len(classes)
+                total = len(self.model.as_list())
                 self.view.show_status(
                     f"Imported preset ({total} classes).",
                     kind="success",
@@ -471,7 +492,7 @@ class Controller:
         except Exception as exc:
             self._handle_ui_error("applying the imported preset", exc)
 
-    def _load_preset_file(self, path: str) -> tuple[list[str], set[str]]:
+    def _load_preset_file(self, path: str) -> Tuple[List[str], Set[str]]:
         """Load a preset file from disk and return classes and toggles.
 
         Supports JSON and CSV formats:
@@ -500,7 +521,6 @@ class Controller:
             ValueError: If the file contents are structurally invalid
                 or cannot be interpreted as a preset.
         """
-
         lower = path.lower()
 
         if lower.endswith(".csv"):
@@ -513,8 +533,8 @@ class Controller:
                 raise ValueError("CSV file is empty.")
 
             header = [h.strip().lower() for h in rows[0]]
-            classes: list[str] = []
-            toggled: set[str] = set()
+            classes: List[str] = []
+            toggled: Set[str] = set()
 
             if "class" in header:
                 idx_class = header.index("class")
@@ -541,6 +561,8 @@ class Controller:
                     if name:
                         classes.append(name)
 
+            classes = _unique_preserve_order(classes)
+            toggled &= set(classes)
             return classes, toggled
 
         else:
@@ -556,21 +578,13 @@ class Controller:
                 raw_classes = data
                 raw_toggled = []
             else:
-                raise ValueError(
-                    "JSON preset must be a list or an object with a 'classes' key."
-                )
+                raise ValueError("JSON preset must be a list or an object with a 'classes' key.")
 
-            if not isinstance(raw_classes, list) or not all(
-                isinstance(x, str) for x in raw_classes
-            ):
+            if not isinstance(raw_classes, list) or not all(isinstance(x, str) for x in raw_classes):
                 raise ValueError("'classes' must be a list of strings.")
 
-            classes = [
-                x.strip() for x in raw_classes if isinstance(x, str) and x.strip()
-            ]
-            toggled = {
-                x.strip() for x in raw_toggled if isinstance(x, str) and x.strip()
-            }
+            classes = _unique_preserve_order(raw_classes)
+            toggled = {x.strip() for x in raw_toggled if isinstance(x, str) and x.strip()}
 
             # Ensure toggled is a subset of classes
             toggled &= set(classes)
@@ -600,11 +614,16 @@ class Controller:
             pass
 
         try:
+            classes = list(self.model.as_list())
+            allowed = set(classes)
+            enabled = _unique_preserve_order(self.view.get_enabled_names())
+            toggled = [name for name in enabled if name in allowed]
+
             storage.save(
                 {
                     "version": config.CONFIG_VERSION,
-                    "classes": list(self.model.as_list()),
-                    "toggled": list(self.view.get_enabled_names()),
+                    "classes": classes,
+                    "toggled": toggled,
                 }
             )
             return True
@@ -617,9 +636,9 @@ class Controller:
 
         Asks the user for confirmation, replaces the model and view
         contents with optimizer.defaults.RENDER_INTENSIVE_NODES,
-        checks all rows, persists the new configuration, schedules a
-        counts refresh, and shows a status message indicating how many
-        classes were restored.
+        leaves all rows unchecked, persists the new configuration,
+        schedules a counts refresh, and shows a status message indicating
+        how many classes were restored.
         """
         if not self.dialogs.ask_yes_no(
             self.view,
@@ -633,7 +652,7 @@ class Controller:
 
         try:
             self.model.replace_all(defaults.RENDER_INTENSIVE_NODES)
-            self.view.set_items(self.model.as_list(), checked=True)
+            self.view.set_items(self.model.as_list(), checked=False)
             if self._persist_state():
                 total = len(self.model.as_list())
                 self.view.show_status(
