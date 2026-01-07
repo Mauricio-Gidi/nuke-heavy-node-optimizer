@@ -18,8 +18,21 @@ Message style guide:
   indicate ongoing work (for example, "Exporting preset…").
 """
 
-from PySide2 import QtWidgets
+from __future__ import annotations
+
 from typing import Optional
+
+# Qt binding compatibility (PySide2 / PySide6) is provided repo-wide.
+# Assumes mvc/qt_compat.py exists after the agreed fixes are applied.
+from mvc.qt_compat import QtWidgets
+
+# QMessageBox button enum compatibility (Qt5/PySide2 vs Qt6/PySide6)
+try:
+    _YES = QtWidgets.QMessageBox.StandardButton.Yes
+    _NO = QtWidgets.QMessageBox.StandardButton.No
+except Exception:  # pragma: no cover - depends on host Qt binding
+    _YES = QtWidgets.QMessageBox.Yes
+    _NO = QtWidgets.QMessageBox.No
 
 
 class DialogService:
@@ -100,7 +113,7 @@ class DialogService:
             parent,
             title,
             text,
-            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
-            QtWidgets.QMessageBox.No,
+            _YES | _NO,
+            _NO,
         )
-        return btn == QtWidgets.QMessageBox.Yes
+        return btn == _YES
