@@ -6,11 +6,6 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 - Hotkey: **Ctrl+Alt+O**
 - Safety: only touches the node’s `disable` knob
 
-**Highlights**
-- One hotkey toggles **N heavy nodes** (N→1 action)
-- Tested on **Windows** (Nuke 13.x, 15.2v6, 16.x)
-- Only modifies the `disable` knob (low-risk change)
-
 ## Demo
 
 <!-- Uncomment once the file exists:
