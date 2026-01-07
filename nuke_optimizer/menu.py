@@ -1,12 +1,16 @@
 """Register Nuke menu entries for the Optimizer tool.
 
-Creates or reuses the "Optimizer" submenu under Nuke's "Scripts" menu
-and registers commands that open the Optimizer UI and enable, disable,
-or Toggle heavy nodes based on the user's saved configuration.
+Creates or reuses the "Optimizer" submenu under Nuke's "Scripts" menu and
+registers commands that open the Optimizer UI and enable, disable, or
+toggle heavy nodes based on the user's saved configuration.
 
 This module is intended to be imported inside a running Nuke session.
-Its helpers rely on the nuke module and the mvc.app and
-optimizer.nuke_services entrypoints.
+Its helpers rely on the ``nuke`` module and the ``mvc.app`` and
+``optimizer.nuke_services`` entrypoints.
+
+Notes:
+    - Nuke's ``Menu.addCommand`` supports the ``shortcut=...`` keyword in
+      Nuke 13+ (and later). :contentReference[oaicite:0]{index=0}
 """
 
 
@@ -29,7 +33,7 @@ def _add_optimizer_entries(menu):
     """Register Optimizer commands under the given Nuke menu.
 
     Adds menu entries to launch the Optimizer UI and to enable, disable,
-    or Toggle heavy nodes using the user's saved configuration.
+    or toggle heavy nodes using the user's saved configuration.
 
     Args:
         menu: Nuke menu object under which Optimizer commands are added.
