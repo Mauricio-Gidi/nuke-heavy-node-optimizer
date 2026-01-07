@@ -1,28 +1,101 @@
 """Nuke-facing services for the Optimizer tool.
 
-Provides the small, focused helpers that talk directly to the Nuke
-Python API to collect class statistics, locate “heavy” nodes with a
-disable knob, perform bulk enable/disable/toggle operations, and
-inspect the user's current selection.
+Provides small, focused helpers that talk directly to the Nuke Python API
+to collect class statistics, locate “heavy” nodes with a disable knob,
+perform bulk enable/disable/toggle operations, and inspect the user's
+current selection.
 
-All interactions with the Nuke API are intentionally defensive: errors
-are logged and swallowed where possible so the rest of the tool remains
-robust even when scripts contain unusual or broken nodes.
+Repo-wide correctness constraints addressed here:
+- Global node discovery: node scanning is performed from the script root
+  and includes nodes inside Group nodes (recursively), independent of the
+  current UI/context group.
 """
 
-from typing import Literal, Iterable
+from __future__ import annotations
+
 import logging
+from typing import Iterable
+
+try:
+    # Python 3.8+
+    from typing import Literal
+except Exception:  # pragma: no cover - Python 3.7 (Nuke 13.x)
+    from typing_extensions import Literal  # type: ignore
 
 
 logger = logging.getLogger(__name__)
 
 
-def class_stats(classes: Iterable[str]) -> dict[str, dict[str, int]]:
-    """Return per-class node statistics for the current Nuke script.
+def _iter_all_nodes_global(nuke) -> list:
+    """Return all nodes in the script, including nodes inside Groups.
 
-    For each class name in ``classes``, this function counts how many
-    nodes of that class exist in the current script and how many of
-    those have their ``disable`` knob set to a truthy value.
+    Uses nuke.allNodes(group=nuke.root(), recurseGroups=True) when
+    available. Falls back to a manual group-walk if needed.
+
+    Args:
+        nuke: Imported Nuke module.
+
+    Returns:
+        list: List of Node objects.
+    """
+    # Preferred: explicit root + recursive group traversal.
+    try:
+        return list(nuke.allNodes(group=nuke.root(), recurseGroups=True))
+    except TypeError:
+        # Older/odd bindings may not accept these keywords.
+        pass
+    except Exception as e:
+        logger.debug("nuke.allNodes(group=root, recurseGroups=True) failed: %s", e)
+
+    # Secondary: attempt recursion with root as the current context.
+    try:
+        with nuke.root():
+            return list(nuke.allNodes(recurseGroups=True))
+    except TypeError:
+        pass
+    except Exception as e:
+        logger.debug("nuke.allNodes(recurseGroups=True) in root context failed: %s", e)
+
+    # Final fallback: manual recursive walk of Group-like nodes.
+    nodes_out = []
+    seen = set()
+
+    def _walk(group_node) -> None:
+        try:
+            with group_node:
+                for node in nuke.allNodes():
+                    node_id = id(node)
+                    if node_id in seen:
+                        continue
+                    seen.add(node_id)
+                    nodes_out.append(node)
+
+                    try:
+                        cls = node.Class()
+                    except Exception:
+                        cls = ""
+
+                    # Recurse into common container node types.
+                    if cls in ("Group", "Gizmo", "LiveGroup"):
+                        _walk(node)
+        except Exception as e:
+            # Never hard-fail traversal; keep best-effort behavior.
+            logger.debug("Group traversal failed in %r: %s", group_node, e)
+
+    try:
+        _walk(nuke.root())
+    except Exception as e:
+        logger.debug("Manual traversal from root failed: %s", e)
+
+    return nodes_out
+
+
+def class_stats(classes: Iterable[str]) -> dict[str, dict[str, int]]:
+    """Return per-class node statistics for the current Nuke script (global scope).
+
+    For each class name in ``classes``, this function counts how many nodes
+    of that class exist in the script (including inside Groups and nested
+    Groups) and how many have their ``disable`` knob set to a truthy value.
 
     If the Nuke API is not available (for example when running outside
     a Nuke session), the function returns a mapping with all totals and
@@ -46,46 +119,39 @@ def class_stats(classes: Iterable[str]) -> dict[str, dict[str, int]]:
     stats: dict[str, dict[str, int]] = {}
 
     if nuke is None:
-        # When Nuke is not present, we still return a predictable shape so
-        # callers can safely render the UI with zeros.
         for cls in classes:
             stats[cls] = {"total": 0, "disabled": 0}
         return stats
 
-    # Query each class independently, protecting against bad classes or
-    # odd nodes that may not expose 'disable' as expected.
-    for cls in classes:
+    # Build once; filter in Python so group recursion remains correct
+    # even if nuke.allNodes(filter=..., recurseGroups=True) has quirks
+    # in certain Nuke versions.
+    all_nodes = _iter_all_nodes_global(nuke)
 
+    for cls in classes:
         total = 0
         disabled = 0
 
-        try:
-            # Use the filter to avoid scanning unrelated nodes.
-            for node in nuke.allNodes(filter=cls):
-                total += 1
-                try:
-                    if bool(node["disable"].value()):
-                        disabled += 1
-                except Exception as e:
-                    # No disable knob or not readable → log and ignore for
-                    # disabled count so that one broken node does not poison
-                    # the entire class statistics.
-                    node_name = getattr(node, "name", lambda: "<unnamed>")()
-                    logger.debug(
-                        "Ignoring node %s (class %s) for disabled-count: no usable "
-                        "'disable' knob (%s)",
-                        node_name,
-                        cls,
-                        e,
-                    )
-        except Exception as e:
-            # Bad class or other Nuke error → leave zeros but log it so the
-            # caller understands why stats look empty for that class.
-            logger.warning(
-                "Failed to collect stats for class %s via nuke.allNodes: %s",
-                cls,
-                e,
-            )
+        for node in all_nodes:
+            try:
+                if node.Class() != cls:
+                    continue
+            except Exception:
+                continue
+
+            total += 1
+            try:
+                if bool(node["disable"].value()):
+                    disabled += 1
+            except Exception as e:
+                node_name = getattr(node, "name", lambda: "<unnamed>")()
+                logger.debug(
+                    "Ignoring node %s (class %s) for disabled-count: no usable "
+                    "'disable' knob (%s)",
+                    node_name,
+                    cls,
+                    e,
+                )
 
         stats[cls] = {"total": total, "disabled": disabled}
 
@@ -97,13 +163,12 @@ def _get_target_nodes():
 
     A "target" node is defined as:
 
-    - Its `Class()` is present in the stored configuration's `classes` list.
+    - Its Class() is present in the stored configuration's `classes` list.
     - That class name is also present in the `toggled` list.
     - The node exposes a `disable` knob (so it can be safely modified).
 
-    The function reads configuration via `optimizer.storage` and
-    `optimizer.defaults`, then queries Nuke using `nuke.allNodes(filter=cls)`
-    for each relevant class.
+    Node discovery is global and recursive: nodes inside Groups (and nested
+    Groups) are included regardless of current UI context.
 
     Returns:
         list: List of Nuke node objects that match the criteria above.
@@ -114,8 +179,7 @@ def _get_target_nodes():
     if nuke is None:
         return []
 
-    # Import here to avoid importing storage/defaults if this module is
-    # used in a limited context (and to minimize import-time side effects).
+    # Import here to minimize import-time side effects.
     from optimizer import storage, defaults
 
     data = storage.safe_load_or_default()
@@ -127,32 +191,28 @@ def _get_target_nodes():
         return []
 
     nodes_out = []
-    for cls in targets:
-        # For each class name, attempt to get all nodes of that class.
+    for node in _iter_all_nodes_global(nuke):
         try:
-            class_nodes = nuke.allNodes(filter=cls)
-        except Exception as e:
-            logger.warning(
-                "Skipping class %s: nuke.allNodes(filter=%s) failed (%s)",
+            cls = node.Class()
+        except Exception:
+            continue
+
+        if cls not in targets:
+            continue
+
+        try:
+            _ = node["disable"]  # must have a disable knob
+        except Exception:
+            node_name = getattr(node, "name", lambda: "<unnamed>")()
+            logger.debug(
+                "Skipping node %s (class %s): no 'disable' knob.",
+                node_name,
                 cls,
-                cls,
-                e,
             )
             continue
 
-        # Filter down to nodes that actually have a 'disable' knob.
-        for node in class_nodes:
-            try:
-                _ = node["disable"]  # must have a disable knob
-            except Exception:
-                node_name = getattr(node, "name", lambda: "<unnamed>")()
-                logger.debug(
-                    "Skipping node %s (class %s): no 'disable' knob.",
-                    node_name,
-                    cls,
-                )
-                continue
-            nodes_out.append(node)
+        nodes_out.append(node)
+
     return nodes_out
 
 
@@ -184,7 +244,7 @@ def apply_heavy_nodes(action: Literal["disable", "enable", "toggle"]) -> dict:
                 "total": <int>,    # how many nodes were considered
             }
 
-        When no target nodes are found, ``"changed"`` and ``"total"`` 
+        When no target nodes are found, ``"changed"`` and ``"total"``
         will both be zero and ``"action"`` will default to ``"disabled"``.
     """
     nodes = _get_target_nodes()
@@ -198,9 +258,7 @@ def apply_heavy_nodes(action: Literal["disable", "enable", "toggle"]) -> dict:
 
     # Determine target disable state.
     if action == "toggle":
-        # We toggle based on whether there is at least one enabled node:
-        # if any node is currently enabled (disable=False), the operation
-        # will disable all; otherwise it will enable all.
+        # If any target node is enabled (disable=False), disable all; else enable all.
         any_enabled = False
         for node in nodes:
             try:
@@ -214,7 +272,6 @@ def apply_heavy_nodes(action: Literal["disable", "enable", "toggle"]) -> dict:
                     node_name,
                     e,
                 )
-                continue
         target_disable = any_enabled
     else:
         target_disable = action == "disable"
@@ -223,7 +280,6 @@ def apply_heavy_nodes(action: Literal["disable", "enable", "toggle"]) -> dict:
     for node in nodes:
         try:
             knob = node["disable"]
-            # Only touch nodes whose state actually needs to change.
             if bool(knob.value()) != target_disable:
                 knob.setValue(bool(target_disable))
                 changed += 1
@@ -235,7 +291,6 @@ def apply_heavy_nodes(action: Literal["disable", "enable", "toggle"]) -> dict:
                 action,
                 e,
             )
-            continue
 
     return {
         "action": "disabled" if target_disable else "enabled",
@@ -281,7 +336,7 @@ def selected_class_names() -> list[str]:
     """Collect unique node class names from the current selection.
 
     Queries Nuke for the user's currently selected nodes and extracts a
-    sorted list of their ``Class()`` values, ignoring empty or whitespace
+    sorted list of their Class() values, ignoring empty or whitespace
     names.
 
     If the Nuke API is not available, an empty list is returned.
@@ -296,27 +351,14 @@ def selected_class_names() -> list[str]:
     nodes = nuke.selectedNodes()
     classes = sorted({getattr(n, "Class", lambda: "")().strip() for n in nodes} - {""})
     if not classes:
-        logger.info(
-            "No selected nodes with a non-empty Class() in the current Nuke script."
-        )
+        logger.info("No selected nodes with a non-empty Class() in the current Nuke script.")
     return classes
 
 
 def _require_nuke():
     """Import and return the Nuke Python module if available.
 
-    This helper centralises the ``import nuke`` pattern and ensures that
-    failures are logged consistently. It allows this package to be
-    imported or tested outside of a Nuke session without raising
-    ``ImportError``; callers simply receive ``None`` instead and can
-    decide how to handle that case.
-
-    Returns:
-        The imported ``nuke`` module, or ``None`` if unavailable.
-
-    Side effects:
-        Logs an error when the Nuke API cannot be imported so callers
-        can inspect the log file instead of seeing an unhandled error.
+    Returns the imported ``nuke`` module, or ``None`` if unavailable.
     """
     try:
         import nuke  # type: ignore
