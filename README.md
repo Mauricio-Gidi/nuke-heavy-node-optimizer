@@ -11,8 +11,9 @@ A small Nuke Python tool that helps you **bulk disable / enable / toggle “heav
 
 ## Demo
 
-![Planned demo GIF: toggle heavy nodes](media/demo_toggle.gif)
+<!-- ![Planned demo GIF: toggle heavy nodes](media/demo_toggle.gif) -->
 
+Short demo (coming next): one hotkey toggles N heavy nodes (N→1 action).
 **Planned 10–20s GIF shot list (procedural / no external footage):**
 1. Show Node Graph + Viewer with the “heavy nodes” chain **enabled**.
 2. Briefly show: `Nuke > Scripts > Optimizer`.
