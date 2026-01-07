@@ -17,7 +17,7 @@ A small Nuke Python tool that helps you **bulk disable / enable / toggle “heav
 ### Supported (claimed)
 - **Nuke 13+ → Nuke 16+**
   - Nuke 13+ is Python 3-only (3.7+ era). :contentReference[oaicite:2]{index=2}
-  - Nuke 16+ uses **PySide6 / Qt 6.5** (VFX Reference Platform 2024). :contentReference[oaicite:3]{index=3}
+  - Nuke 16+ uses **PySide6 / Qt 6.5** (VFX Reference Platform 2024).
 
 This repo includes a small Qt compatibility shim (`mvc/qt_compat.py`) so the UI runs in both:
 - **PySide2 / Qt5** (Nuke 13–15)
