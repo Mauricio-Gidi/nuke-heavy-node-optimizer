@@ -1,14 +1,45 @@
 """Qt-based view for the Optimizer configuration window.
 
-Contains the passive PySide2 widgets, layouts, and small helpers used to
+Contains the passive Qt widgets, layouts, and small helpers used to
 display and edit the list of “heavy” node classes and their statistics.
 
 All business logic (persistence, Nuke interaction, and selection rules)
 lives in the controller and model; the view exposes a small, focused API
 that the controller drives via signals and slots.
+
+Qt binding differences between Nuke 13.x (PySide2/Qt5) and Nuke 16+ (PySide6/Qt6)
+are handled by :mod:`mvc.qt_compat`.
 """
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from __future__ import annotations
+
+from typing import Optional
+
+from mvc.qt_compat import (
+    QtWidgets,
+    QtCore,
+    QtGui,
+    USER_ROLE,
+    CHECKED,
+    UNCHECKED,
+    PARTIALLY_CHECKED,
+    ITEM_IS_USER_CHECKABLE,
+    ITEM_IS_SELECTABLE,
+    ITEM_IS_ENABLED,
+    WINDOW_STAYS_ON_TOP_HINT,
+    MOVE_ACTION,
+    ALIGN_LEFT,
+    ALIGN_RIGHT,
+    ALIGN_VCENTER,
+    ELIDE_RIGHT,
+)
+
+
+# Qt5 (PySide2) exposes Qt.PlainText; Qt6 (PySide6) exposes Qt.TextFormat.PlainText.
+try:
+    _PLAIN_TEXT = QtCore.Qt.TextFormat.PlainText  # type: ignore[attr-defined]
+except Exception:  # pragma: no cover
+    _PLAIN_TEXT = QtCore.Qt.PlainText  # type: ignore[attr-defined]
 
 
 class CountSuffixDelegate(QtWidgets.QStyledItemDelegate):
@@ -46,9 +77,9 @@ class CountSuffixDelegate(QtWidgets.QStyledItemDelegate):
         style = opt.widget.style() if opt.widget else QtWidgets.QApplication.style()
 
         # Parts from roles (fallback to DisplayRole for base)
-        base = index.data(QtCore.Qt.UserRole) or (opt.text or "")
-        d = index.data(QtCore.Qt.UserRole + 1)
-        t = index.data(QtCore.Qt.UserRole + 2)
+        base = index.data(USER_ROLE) or (opt.text or "")
+        d = index.data(USER_ROLE + 1)
+        t = index.data(USER_ROLE + 2)
         suffix = (
             f"({d}/{t} disabled)" if isinstance(d, int) and isinstance(t, int) else ""
         )
@@ -59,9 +90,7 @@ class CountSuffixDelegate(QtWidgets.QStyledItemDelegate):
         style.drawControl(QtWidgets.QStyle.CE_ItemViewItem, opt, painter, opt.widget)
         opt.text = text_backup
 
-        rect = style.subElementRect(
-            QtWidgets.QStyle.SE_ItemViewItemText, opt, opt.widget
-        )
+        rect = style.subElementRect(QtWidgets.QStyle.SE_ItemViewItemText, opt, opt.widget)
         fm = opt.fontMetrics
 
         # Right rect fits the suffix; left takes the remaining space
@@ -91,7 +120,7 @@ class CountSuffixDelegate(QtWidgets.QStyledItemDelegate):
         # Elide the base text so it never overlaps the count suffix.
         left_text = fm.elidedText(
             base,
-            QtCore.Qt.ElideRight,
+            ELIDE_RIGHT,
             max(0, left_rect.width()),
         )
 
@@ -105,7 +134,7 @@ class CountSuffixDelegate(QtWidgets.QStyledItemDelegate):
         style.drawItemText(
             painter,
             left_rect,
-            QtCore.Qt.AlignVCenter | QtCore.Qt.AlignLeft,
+            ALIGN_VCENTER | ALIGN_LEFT,
             opt.palette,
             enabled,
             left_text,
@@ -115,7 +144,7 @@ class CountSuffixDelegate(QtWidgets.QStyledItemDelegate):
             style.drawItemText(
                 painter,
                 right_rect,
-                QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight,
+                ALIGN_VCENTER | ALIGN_RIGHT,
                 opt.palette,
                 enabled,
                 suffix,
@@ -124,8 +153,7 @@ class CountSuffixDelegate(QtWidgets.QStyledItemDelegate):
 
 
 class View(QtWidgets.QWidget):
-    """
-    Define the passive view for the Optimizer configuration window.
+    """Define the passive view for the Optimizer configuration window.
 
     The view defines only the widgets, layout, and small helpers used
     to read and write UI state.
@@ -214,7 +242,6 @@ class View(QtWidgets.QWidget):
         # Keep the Select-all checkbox consistent after removals.
         self.sync_select_all_from_items()
 
-
     def set_item_checked(self, name: str, checked: bool) -> None:
         """Set a row's checkbox state by its class name.
 
@@ -227,9 +254,7 @@ class View(QtWidgets.QWidget):
             for i in range(self.list_widget.count()):
                 item = self.list_widget.item(i)
                 if self._base_name(item) == name:
-                    item.setCheckState(
-                        QtCore.Qt.Checked if checked else QtCore.Qt.Unchecked
-                    )
+                    item.setCheckState(CHECKED if checked else UNCHECKED)
                     break
         finally:
             del blocker
@@ -253,7 +278,7 @@ class View(QtWidgets.QWidget):
         out: list[str] = []
         for i in range(self.list_widget.count()):
             it = self.list_widget.item(i)
-            if it.checkState() == QtCore.Qt.Checked:
+            if it.checkState() == CHECKED:
                 out.append(self._base_name(it))
         return tuple(out)
 
@@ -273,21 +298,21 @@ class View(QtWidgets.QWidget):
             # No rows → show unchecked (helps communicate there's
             # nothing to select).
             if total == 0:
-                self.chk_select_all.setCheckState(QtCore.Qt.Unchecked)
+                self.chk_select_all.setCheckState(UNCHECKED)
                 return
 
             checked = sum(
                 1
                 for i in range(total)
-                if self.list_widget.item(i).checkState() == QtCore.Qt.Checked
+                if self.list_widget.item(i).checkState() == CHECKED
             )
 
             if checked == 0:
-                self.chk_select_all.setCheckState(QtCore.Qt.Unchecked)
+                self.chk_select_all.setCheckState(UNCHECKED)
             elif checked == total:
-                self.chk_select_all.setCheckState(QtCore.Qt.Checked)
+                self.chk_select_all.setCheckState(CHECKED)
             else:
-                self.chk_select_all.setCheckState(QtCore.Qt.PartiallyChecked)
+                self.chk_select_all.setCheckState(PARTIALLY_CHECKED)
         finally:
             del blocker
 
@@ -299,7 +324,7 @@ class View(QtWidgets.QWidget):
         """Set basic window metadata such as title, object name, and flags."""
         self.setWindowTitle("Optimizer")
         self.setObjectName("OptimizerView")
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(WINDOW_STAYS_ON_TOP_HINT)
 
     def create_widgets(self) -> None:
         """Instantiate child widgets and configure their basic properties."""
@@ -318,7 +343,7 @@ class View(QtWidgets.QWidget):
         self.list_widget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         self.list_widget.setAlternatingRowColors(True)
         self.list_widget.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
-        self.list_widget.setDefaultDropAction(QtCore.Qt.MoveAction)
+        self.list_widget.setDefaultDropAction(MOVE_ACTION)
         self.list_widget.setToolTip(
             "Checked classes will be used by the Optimizer actions " "in the Nuke menu."
         )
@@ -385,7 +410,7 @@ class View(QtWidgets.QWidget):
 
         self.status_label = QtWidgets.QLabel("")
         self.status_label.setObjectName("status_label")
-        self.status_label.setTextFormat(QtCore.Qt.PlainText)
+        self.status_label.setTextFormat(_PLAIN_TEXT)
         self.status_label.setAccessibleName("Status")
         self.status_label.setToolTip("Recent action status")
 
@@ -449,7 +474,6 @@ class View(QtWidgets.QWidget):
     # Helpers (internal)                                                    #
     # --------------------------------------------------------------------- #
 
-
     def _show_inline_help(self) -> None:
         """Show a brief help dialog describing how to use the Optimizer panel."""
         QtWidgets.QMessageBox.information(
@@ -470,12 +494,11 @@ class View(QtWidgets.QWidget):
             ),
         )
 
-
     def _format_label(
         self,
         base_name: str,
-        total: int | None = None,
-        disabled: int | None = None,
+        total: Optional[int] = None,
+        disabled: Optional[int] = None,
     ) -> str:
         """Return a label string combining the base name and counts.
 
@@ -499,7 +522,7 @@ class View(QtWidgets.QWidget):
 
     def _base_name(self, item: QtWidgets.QListWidgetItem) -> str:
         """Return the class name stored on a list item."""
-        return item.data(QtCore.Qt.UserRole)
+        return item.data(USER_ROLE)
 
     def set_counts(self, stats: dict[str, dict[str, int]]) -> None:
         """Update per-class counts used for display on all rows.
@@ -531,8 +554,8 @@ class View(QtWidgets.QWidget):
             disabled = int(s.get("disabled", 0))
 
             # Roles for the delegate.
-            item.setData(QtCore.Qt.UserRole + 1, disabled)
-            item.setData(QtCore.Qt.UserRole + 2, total)
+            item.setData(USER_ROLE + 1, disabled)
+            item.setData(USER_ROLE + 2, total)
 
             # Fallback/diagnostic text (delegate ignores it).
             item.setText(self._format_label(name, total, disabled))
@@ -588,17 +611,14 @@ class View(QtWidgets.QWidget):
             checked: Initial checkbox state for the row.
         """
         item = QtWidgets.QListWidgetItem(name)
-        item.setData(QtCore.Qt.UserRole, name)
+        item.setData(USER_ROLE, name)
 
         # Make the item checkable and selectable for bulk remove operations.
         item.setFlags(
-            item.flags()
-            | QtCore.Qt.ItemIsUserCheckable
-            | QtCore.Qt.ItemIsSelectable
-            | QtCore.Qt.ItemIsEnabled
+            item.flags() | ITEM_IS_USER_CHECKABLE | ITEM_IS_SELECTABLE | ITEM_IS_ENABLED
         )
 
-        item.setCheckState(QtCore.Qt.Checked if checked else QtCore.Qt.Unchecked)
+        item.setCheckState(CHECKED if checked else UNCHECKED)
         self.list_widget.addItem(item)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
