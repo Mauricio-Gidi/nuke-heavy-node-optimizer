@@ -9,6 +9,21 @@ A small Nuke Python tool that helps you **bulk disable / enable / toggle “heav
 
 ---
 
+## Demo
+
+![Planned demo GIF: toggle heavy nodes](media/demo_toggle.gif)
+
+**Planned 10–20s GIF shot list (procedural / no external footage):**
+1. Show Node Graph + Viewer with the “heavy nodes” chain **enabled**.
+2. Briefly show: `Nuke > Scripts > Optimizer`.
+3. Trigger **Toggle heavy nodes** (Ctrl+Alt+O) once → nodes go **disabled** (visible in graph) and Viewer output changes.
+4. Optional: trigger toggle again for a quick **A/B/A** loop.
+5. Optional (1–2s): open **Optimizer editor** to show the class list is configurable.
+
+**Planned screenshots:**
+- `media/screenshot_editor.png` (Optimizer editor UI)
+- `media/screenshot_menu.png` (Scripts > Optimizer menu)
+
 ## Compatibility
 
 ### Tested (verified)
@@ -124,15 +139,6 @@ Use:
   - `~/.nuke/optimizer.log`
 
 If something behaves unexpectedly, check that file first.
-
----
-
-## Demo
-
-*TODO (recommended for a “final” portfolio-grade README):*
-- Add **1 screenshot** of the editor window
-- Add a **10–20s GIF** showing:
-  - open editor → toggle a couple of classes → run “Toggle heavy nodes” → observe result
 
 ---
 
