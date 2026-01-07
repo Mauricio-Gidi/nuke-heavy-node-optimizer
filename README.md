@@ -90,6 +90,13 @@ Reduces preview switching from **N manual knob edits → 1 action**, where **N**
 
 ## Usage
 
+### Behavior definitions
+
+- **Heavy class**: a node class name listed in the Optimizer editor (e.g., `ZDefocus`, `TimeBlur`).
+- **Active class**: a heavy class that is currently checked/enabled in the editor (the tool only operates on these).
+- **Target nodes**: all nodes in the current script whose `Class()` is an active class **and** that expose a `disable` knob.
+- **Enabled vs disabled**: `disable = False` means the node is enabled; `disable = True` means the node is disabled. (In Nuke, the disable knob is a boolean “disabled state”.)
+
 ### Configure heavy classes
 Open:
 - `Nuke > Scripts > Optimizer > Optimizer editor`
