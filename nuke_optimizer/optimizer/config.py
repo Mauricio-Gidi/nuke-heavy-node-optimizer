@@ -14,18 +14,14 @@ rather than constructing paths manually.
 # Bump this integer whenever the shape or meaning of the JSON config
 # changes in a non–backwards-compatible way. The storage layer compares
 # the value on disk against this constant and, if the stored version is
-# older, will treat the config as outdated and reset it to defaults.
+# incompatible, will reset the configuration to defaults.
 CONFIG_VERSION: int = 1
 
-# Base directory name for all Optimizer data under the user's Nuke home.
+# Directory name under the user's Nuke home used to store Optimizer data.
 #
-# The storage module constructs the full path as:
-#   Path.home() / ".nuke" / f"{APP_DIR_NAME}_data" / FILE_NAME
-#
-# Changing this will cause the tool to look in a different directory
-# (and effectively "forget" the previous configuration), so treat it as
-# a stable identifier for this application.
-APP_DIR_NAME: str = "nuke_optimizer"
+# The full path is computed by optimizer.storage and is typically:
+#   ~/.nuke/<APP_DIR_NAME>/<FILE_NAME>
+APP_DIR_NAME: str = "nuke_optimizer_data"
 
 # File name for the JSON configuration stored on disk.
 #
@@ -33,7 +29,7 @@ APP_DIR_NAME: str = "nuke_optimizer"
 # form the full configuration path.
 FILE_NAME: str = "config.json"
 
-# Defaults for UI behavior (reserved for future use).
+# Defaults for UI/engine behavior (reserved for future use).
 # The comments below document intended semantics for potential future
 # configuration keys that may live alongside the constants above:
 #
