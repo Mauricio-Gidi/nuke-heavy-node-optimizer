@@ -15,7 +15,7 @@ A small Nuke Python tool that helps you **bulk disable / enable / toggle “heav
 - **Nuke 13+** (Python 3.7.7, Qt5/PySide2) through **Nuke 16+** (Python 3.11, Qt6/PySide6)
 
 ### Tested
-- **Windows**: Nuke **15.x** and **16.x**  
+- **Windows**: Nuke **13.x**, **15.x** and **16.x**  
   *(Other OSes should work; they’re just not the primary test target.)*
 
 **Why this matters:** Nuke 16+ uses **PySide6** and will error on startup if plugins import **PySide2** directly. This repo uses a small shim (`mvc/qt_compat.py`) to run in both environments.
