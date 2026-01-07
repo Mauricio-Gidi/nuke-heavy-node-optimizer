@@ -171,4 +171,8 @@ Common causes:
 
 ## License
 
-MIT — see `LICENSE`.
+Copyright (c) 2025 Mauricio Gidi
+
+This project is licensed under the **MIT License**.  
+See the [LICENSE](LICENSE) file in this repository for the complete license text.
+
