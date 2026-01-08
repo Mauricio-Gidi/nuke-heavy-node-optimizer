@@ -5,6 +5,7 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 - Menu: `Nuke > Scripts > Optimizer`
 - Hotkey: **Ctrl+Alt+O**
 - Safety: only touches each node’s `disable` knob
+- Case study: [`docs/case-study-heavy-node-optimizer.md`](docs/case-study-heavy-node-optimizer.md)
 
 ## Demo
 
