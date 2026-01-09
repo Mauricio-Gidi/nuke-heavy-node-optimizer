@@ -1,0 +1,295 @@
+#! C:/Program Files/Nuke15.2v6/nuke-15.2.6.dll -nx
+version 15.2 v6
+define_window_layout_xml {<?xml version="1.0" encoding="UTF-8"?>
+<layout version="1.0">
+    <window x="0" y="0" w="1917" h="1101" screen="0">
+        <splitter orientation="1">
+            <split size="1212"/>
+            <splitter orientation="1">
+                <split size="1212"/>
+                <dock id="" activePageId="Viewer.1">
+                    <page id="Viewer.1"/>
+                </dock>
+            </splitter>
+            <split size="701"/>
+            <splitter orientation="2">
+                <split size="530"/>
+                <dock id="" activePageId="Properties.1">
+                    <page id="Properties.1"/>
+                    <page id="uk.co.thefoundry.backgroundrenderview.1"/>
+                </dock>
+                <split size="529"/>
+                <dock id="" hideTitles="1" activePageId="DAG.1" focus="true">
+                    <page id="DAG.1"/>
+                </dock>
+            </splitter>
+        </splitter>
+    </window>
+</layout>
+}
+Root {
+ inputs 0
+ name C:/Users/mgidi/.nuke/rebelway/nuke_optimizer/media/demo_toggle.nk
+ frame 12
+ last_frame 60
+ format "1280 720 0 0 1280 720 1 HD_720"
+ proxy_type scale
+ proxy_format "1024 778 0 0 1024 778 1 1K_Super_35(full-ap)"
+ colorManagement Nuke
+ workingSpaceLUT linear
+ monitorLut sRGB
+ monitorOutLUT rec709
+ int8Lut sRGB
+ int16Lut sRGB
+ logLut Cineon
+ floatLut linear
+}
+BackdropNode {
+ inputs 0
+ name BackdropNode1
+ tile_color 0x395e2fff
+ note_font_size 50
+ xpos -140
+ ypos -203
+ bdwidth 329
+ bdheight 238
+ addUserKnob {20 Presets}
+ addUserKnob {22 Roto T "nuke.thisNode()\['tile_color'].setValue(1922660095);nuke.thisNode()\['label'].setValue('Roto')" +STARTLINE}
+ addUserKnob {22 CopyCat -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2270522879);nuke.thisNode()\['label'].setValue('CopyCat')"}
+ addUserKnob {22 "3D Scene" -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(962473983);nuke.thisNode()\['label'].setValue('3D Scene')"}
+ addUserKnob {22 Read/Plates -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(1248033023);nuke.thisNode()\['label'].setValue('Read/Plates')"}
+ addUserKnob {22 IO/Write T "nuke.thisNode()\['tile_color'].setValue(877223679);nuke.thisNode()\['label'].setValue('IO/Write')" +STARTLINE}
+ addUserKnob {22 Precomp -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(759058687);nuke.thisNode()\['label'].setValue('Precomp')"}
+ addUserKnob {22 Merge/Comp -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(715233535);nuke.thisNode()\['label'].setValue('Merge/Comp')"}
+ addUserKnob {22 Utility/Math -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(1567457023);nuke.thisNode()\['label'].setValue('Utility/Math')"}
+ addUserKnob {22 Paint/Cleanup T "nuke.thisNode()\['tile_color'].setValue(3896742911);nuke.thisNode()\['label'].setValue('Paint/Cleanup')" +STARTLINE}
+ addUserKnob {22 Tracker -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3568045567);nuke.thisNode()\['label'].setValue('Tracker')"}
+ addUserKnob {22 Stabilize -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2944058879);nuke.thisNode()\['label'].setValue('Stabilize')"}
+ addUserKnob {22 Key/Matte -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(396540159);nuke.thisNode()\['label'].setValue('Key/Matte')"}
+ addUserKnob {22 Z-Depth/Focus T "nuke.thisNode()\['tile_color'].setValue(882433023);nuke.thisNode()\['label'].setValue('Z-Depth/Focus')" +STARTLINE}
+ addUserKnob {22 Color/Grade -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3867026175);nuke.thisNode()\['label'].setValue('Color/Grade')"}
+ addUserKnob {22 LookDev -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3568252927);nuke.thisNode()\['label'].setValue('LookDev')"}
+ addUserKnob {22 AOV/Passes -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(1062319615);nuke.thisNode()\['label'].setValue('AOV/Passes')"}
+ addUserKnob {22 LUT/ColorMgmt T "nuke.thisNode()\['tile_color'].setValue(3183724543);nuke.thisNode()\['label'].setValue('LUT/ColorMgmt')" +STARTLINE}
+ addUserKnob {22 Transform -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(4056158207);nuke.thisNode()\['label'].setValue('Transform')"}
+ addUserKnob {22 Retime/Time -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3880533247);nuke.thisNode()\['label'].setValue('Retime/Time')"}
+ addUserKnob {22 Filter/Blur -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2386865663);nuke.thisNode()\['label'].setValue('Filter/Blur')"}
+ addUserKnob {22 Lens/Distortion T "nuke.thisNode()\['tile_color'].setValue(4285489663);nuke.thisNode()\['label'].setValue('Lens/Distortion')" +STARTLINE}
+ addUserKnob {22 Projection/Camera -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(665739519);nuke.thisNode()\['label'].setValue('Projection/Camera')"}
+ addUserKnob {22 Relight/Normals -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(379618815);nuke.thisNode()\['label'].setValue('Relight/Normals')"}
+ addUserKnob {22 Deep -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(241587711);nuke.thisNode()\['label'].setValue('Deep')"}
+ addUserKnob {22 Particles T "nuke.thisNode()\['tile_color'].setValue(2101123327);nuke.thisNode()\['label'].setValue('Particles')" +STARTLINE}
+ addUserKnob {22 Grain/Noise -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2510661375);nuke.thisNode()\['label'].setValue('Grain/Noise')"}
+ addUserKnob {22 QC/Review -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3183724543);nuke.thisNode()\['label'].setValue('QC/Review')"}
+}
+BackdropNode {
+ inputs 0
+ name BackdropNode2
+ tile_color 0x7f7f7fff
+ label "DEFAULT HEAVY NODES"
+ note_font_size 30
+ xpos -121
+ ypos 89
+ bdwidth 535
+ bdheight 235
+ addUserKnob {20 Presets}
+ addUserKnob {22 Roto T "nuke.thisNode()\['tile_color'].setValue(1922660095);nuke.thisNode()\['label'].setValue('Roto')" +STARTLINE}
+ addUserKnob {22 CopyCat -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2270522879);nuke.thisNode()\['label'].setValue('CopyCat')"}
+ addUserKnob {22 "3D Scene" -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(962473983);nuke.thisNode()\['label'].setValue('3D Scene')"}
+ addUserKnob {22 Read/Plates -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(1248033023);nuke.thisNode()\['label'].setValue('Read/Plates')"}
+ addUserKnob {22 IO/Write T "nuke.thisNode()\['tile_color'].setValue(877223679);nuke.thisNode()\['label'].setValue('IO/Write')" +STARTLINE}
+ addUserKnob {22 Precomp -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(759058687);nuke.thisNode()\['label'].setValue('Precomp')"}
+ addUserKnob {22 Merge/Comp -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(715233535);nuke.thisNode()\['label'].setValue('Merge/Comp')"}
+ addUserKnob {22 Utility/Math -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(1567457023);nuke.thisNode()\['label'].setValue('Utility/Math')"}
+ addUserKnob {22 Paint/Cleanup T "nuke.thisNode()\['tile_color'].setValue(3896742911);nuke.thisNode()\['label'].setValue('Paint/Cleanup')" +STARTLINE}
+ addUserKnob {22 Tracker -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3568045567);nuke.thisNode()\['label'].setValue('Tracker')"}
+ addUserKnob {22 Stabilize -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2944058879);nuke.thisNode()\['label'].setValue('Stabilize')"}
+ addUserKnob {22 Key/Matte -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(396540159);nuke.thisNode()\['label'].setValue('Key/Matte')"}
+ addUserKnob {22 Z-Depth/Focus T "nuke.thisNode()\['tile_color'].setValue(882433023);nuke.thisNode()\['label'].setValue('Z-Depth/Focus')" +STARTLINE}
+ addUserKnob {22 Color/Grade -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3867026175);nuke.thisNode()\['label'].setValue('Color/Grade')"}
+ addUserKnob {22 LookDev -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3568252927);nuke.thisNode()\['label'].setValue('LookDev')"}
+ addUserKnob {22 AOV/Passes -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(1062319615);nuke.thisNode()\['label'].setValue('AOV/Passes')"}
+ addUserKnob {22 LUT/ColorMgmt T "nuke.thisNode()\['tile_color'].setValue(3183724543);nuke.thisNode()\['label'].setValue('LUT/ColorMgmt')" +STARTLINE}
+ addUserKnob {22 Transform -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(4056158207);nuke.thisNode()\['label'].setValue('Transform')"}
+ addUserKnob {22 Retime/Time -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3880533247);nuke.thisNode()\['label'].setValue('Retime/Time')"}
+ addUserKnob {22 Filter/Blur -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2386865663);nuke.thisNode()\['label'].setValue('Filter/Blur')"}
+ addUserKnob {22 Lens/Distortion T "nuke.thisNode()\['tile_color'].setValue(4285489663);nuke.thisNode()\['label'].setValue('Lens/Distortion')" +STARTLINE}
+ addUserKnob {22 Projection/Camera -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(665739519);nuke.thisNode()\['label'].setValue('Projection/Camera')"}
+ addUserKnob {22 Relight/Normals -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(379618815);nuke.thisNode()\['label'].setValue('Relight/Normals')"}
+ addUserKnob {22 Deep -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(241587711);nuke.thisNode()\['label'].setValue('Deep')"}
+ addUserKnob {22 Particles T "nuke.thisNode()\['tile_color'].setValue(2101123327);nuke.thisNode()\['label'].setValue('Particles')" +STARTLINE}
+ addUserKnob {22 Grain/Noise -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2510661375);nuke.thisNode()\['label'].setValue('Grain/Noise')"}
+ addUserKnob {22 QC/Review -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3183724543);nuke.thisNode()\['label'].setValue('QC/Review')"}
+}
+BackdropNode {
+ inputs 0
+ name BackdropNode3
+ tile_color 0x7f7f7fff
+ label "ADD NEW HEAVY NODE"
+ note_font_size 30
+ xpos -122
+ ypos 338
+ bdwidth 538
+ bdheight 136
+ addUserKnob {20 Presets}
+ addUserKnob {22 Roto T "nuke.thisNode()\['tile_color'].setValue(1922660095);nuke.thisNode()\['label'].setValue('Roto')" +STARTLINE}
+ addUserKnob {22 CopyCat -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2270522879);nuke.thisNode()\['label'].setValue('CopyCat')"}
+ addUserKnob {22 "3D Scene" -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(962473983);nuke.thisNode()\['label'].setValue('3D Scene')"}
+ addUserKnob {22 Read/Plates -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(1248033023);nuke.thisNode()\['label'].setValue('Read/Plates')"}
+ addUserKnob {22 IO/Write T "nuke.thisNode()\['tile_color'].setValue(877223679);nuke.thisNode()\['label'].setValue('IO/Write')" +STARTLINE}
+ addUserKnob {22 Precomp -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(759058687);nuke.thisNode()\['label'].setValue('Precomp')"}
+ addUserKnob {22 Merge/Comp -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(715233535);nuke.thisNode()\['label'].setValue('Merge/Comp')"}
+ addUserKnob {22 Utility/Math -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(1567457023);nuke.thisNode()\['label'].setValue('Utility/Math')"}
+ addUserKnob {22 Paint/Cleanup T "nuke.thisNode()\['tile_color'].setValue(3896742911);nuke.thisNode()\['label'].setValue('Paint/Cleanup')" +STARTLINE}
+ addUserKnob {22 Tracker -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3568045567);nuke.thisNode()\['label'].setValue('Tracker')"}
+ addUserKnob {22 Stabilize -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2944058879);nuke.thisNode()\['label'].setValue('Stabilize')"}
+ addUserKnob {22 Key/Matte -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(396540159);nuke.thisNode()\['label'].setValue('Key/Matte')"}
+ addUserKnob {22 Z-Depth/Focus T "nuke.thisNode()\['tile_color'].setValue(882433023);nuke.thisNode()\['label'].setValue('Z-Depth/Focus')" +STARTLINE}
+ addUserKnob {22 Color/Grade -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3867026175);nuke.thisNode()\['label'].setValue('Color/Grade')"}
+ addUserKnob {22 LookDev -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3568252927);nuke.thisNode()\['label'].setValue('LookDev')"}
+ addUserKnob {22 AOV/Passes -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(1062319615);nuke.thisNode()\['label'].setValue('AOV/Passes')"}
+ addUserKnob {22 LUT/ColorMgmt T "nuke.thisNode()\['tile_color'].setValue(3183724543);nuke.thisNode()\['label'].setValue('LUT/ColorMgmt')" +STARTLINE}
+ addUserKnob {22 Transform -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(4056158207);nuke.thisNode()\['label'].setValue('Transform')"}
+ addUserKnob {22 Retime/Time -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3880533247);nuke.thisNode()\['label'].setValue('Retime/Time')"}
+ addUserKnob {22 Filter/Blur -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2386865663);nuke.thisNode()\['label'].setValue('Filter/Blur')"}
+ addUserKnob {22 Lens/Distortion T "nuke.thisNode()\['tile_color'].setValue(4285489663);nuke.thisNode()\['label'].setValue('Lens/Distortion')" +STARTLINE}
+ addUserKnob {22 Projection/Camera -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(665739519);nuke.thisNode()\['label'].setValue('Projection/Camera')"}
+ addUserKnob {22 Relight/Normals -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(379618815);nuke.thisNode()\['label'].setValue('Relight/Normals')"}
+ addUserKnob {22 Deep -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(241587711);nuke.thisNode()\['label'].setValue('Deep')"}
+ addUserKnob {22 Particles T "nuke.thisNode()\['tile_color'].setValue(2101123327);nuke.thisNode()\['label'].setValue('Particles')" +STARTLINE}
+ addUserKnob {22 Grain/Noise -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(2510661375);nuke.thisNode()\['label'].setValue('Grain/Noise')"}
+ addUserKnob {22 QC/Review -STARTLINE T "nuke.thisNode()\['tile_color'].setValue(3183724543);nuke.thisNode()\['label'].setValue('QC/Review')"}
+}
+Camera3 {
+ inputs 0
+ translate {{curve x1 0 x100 0 s0} {curve x1 0 x100 0 s0} {curve x1 0.7400000095 x100 0 s0}}
+ name Camera1
+ xpos -130
+ ypos -35
+}
+ColorWheel {
+ inputs 0
+ gamma 0.45
+ name ColorWheel1
+ xpos 100
+ ypos -133
+}
+Card2 {
+ translate {0.085 0 0.135}
+ uniform_scale 0.2
+ control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 0 {0.1666666865 0 0} 0 {0 0 0} 0 {0 0.1666666865 0} 0 {0 0 0} 0 {0 0 0} 
+1 {0 -0.5 0} 0 {0.1666666716 0 0} 0 {-0.1666666716 0 0} 0 {0 0.1666666865 0} 0 {0 0 0} 0 {0.5 0 0} 
+1 {0.5 -0.5 0} 0 {0 0 0} 0 {-0.1666666865 0 0} 0 {0 0.1666666865 0} 0 {0 0 0} 0 {1 0 0} 
+1 {-0.5 0 0} 0 {0.1666666865 0 0} 0 {0 0 0} 0 {0 0.1666666716 0} 0 {0 -0.1666666716 0} 0 {0 0.5 0} 
+1 {0 0 0} 0 {0.1666666716 0 0} 0 {-0.1666666716 0 0} 0 {0 0.1666666716 0} 0 {0 -0.1666666716 0} 0 {0.5 0.5 0} 
+1 {0.5 0 0} 0 {0 0 0} 0 {-0.1666666865 0 0} 0 {0 0.1666666716 0} 0 {0 -0.1666666716 0} 0 {1 0.5 0} 
+1 {-0.5 0.5 0} 0 {0.1666666865 0 0} 0 {0 0 0} 0 {0 0 0} 0 {0 -0.1666666865 0} 0 {0 1 0} 
+1 {0 0.5 0} 0 {0.1666666716 0 0} 0 {-0.1666666716 0 0} 0 {0 0 0} 0 {0 -0.1666666865 0} 0 {0.5 1 0} 
+1 {0.5 0.5 0} 0 {0 0 0} 0 {-0.1666666865 0 0} 0 {0 0 0} 0 {0 -0.1666666865 0} 0 {1 1 0} }
+ name Card2
+ xpos 100
+ ypos -61
+}
+CheckerBoard2 {
+ inputs 0
+ name CheckerBoard1
+ xpos -20
+ ypos -179
+}
+Card2 {
+ translate {0 0 -1.534999967}
+ uniform_scale 1.13
+ control_points {3 3 3 6 
+
+1 {-0.5 -0.5 0} 0 {0.1666666865 0 0} 0 {0 0 0} 0 {0 0.1666666865 0} 0 {0 0 0} 0 {0 0 0} 
+1 {0 -0.5 0} 0 {0.1666666716 0 0} 0 {-0.1666666716 0 0} 0 {0 0.1666666865 0} 0 {0 0 0} 0 {0.5 0 0} 
+1 {0.5 -0.5 0} 0 {0 0 0} 0 {-0.1666666865 0 0} 0 {0 0.1666666865 0} 0 {0 0 0} 0 {1 0 0} 
+1 {-0.5 0 0} 0 {0.1666666865 0 0} 0 {0 0 0} 0 {0 0.1666666716 0} 0 {0 -0.1666666716 0} 0 {0 0.5 0} 
+1 {0 0 0} 0 {0.1666666716 0 0} 0 {-0.1666666716 0 0} 0 {0 0.1666666716 0} 0 {0 -0.1666666716 0} 0 {0.5 0.5 0} 
+1 {0.5 0 0} 0 {0 0 0} 0 {-0.1666666865 0 0} 0 {0 0.1666666716 0} 0 {0 -0.1666666716 0} 0 {1 0.5 0} 
+1 {-0.5 0.5 0} 0 {0.1666666865 0 0} 0 {0 0 0} 0 {0 0 0} 0 {0 -0.1666666865 0} 0 {0 1 0} 
+1 {0 0.5 0} 0 {0.1666666716 0 0} 0 {-0.1666666716 0 0} 0 {0 0 0} 0 {0 -0.1666666865 0} 0 {0.5 1 0} 
+1 {0.5 0.5 0} 0 {0 0 0} 0 {-0.1666666865 0 0} 0 {0 0 0} 0 {0 -0.1666666865 0} 0 {1 1 0} }
+ name Card1
+ xpos -20
+ ypos -107
+}
+Scene {
+ inputs 2
+ name Scene1
+ xpos -10
+ ypos -81
+}
+push 0
+ScanlineRender {
+ inputs 3
+ conservative_shader_sampling false
+ motion_vectors_type distance
+ name ScanlineRender1
+ xpos -20
+ ypos -15
+}
+TimeBlur {
+ divisions 8
+ shutteroffset start
+ shuttercustomoffset 0
+ name TimeBlur1
+ xpos -20
+ ypos 198
+}
+ZDefocus2 {
+ center 2.972542763
+ focal_point {890 372}
+ max_size 100
+ name ZDefocus1
+ xpos -20
+ ypos 252
+}
+Grain2 {
+ name Grain2_1
+ label "Kodak 5218"
+ xpos -20
+ ypos 428
+ red_size 0.1
+ green_size 1.6
+ blue_size 1.91
+ green_i 0.86
+ blue_i 0.73
+ red_m 0.38
+ green_m 0.17
+ blue_m 0.87
+ black {0 0 0}
+ minimum {0 0 0}
+}
+Viewer {
+ frame_range 10-50
+ frame_range_lock true
+ gamma 1.28
+ monitorOutNDISenderName "NukeX - untitled - Viewer1"
+ monitorOutOutputTransform rec709
+ name Viewer1
+ xpos -20
+ ypos 516
+}
+StickyNote {
+ inputs 0
+ name StickyNote2
+ label "Nuke > Scripts > Optimizer > Optimizer editor"
+ note_font "Verdana Bold"
+ note_font_size 15
+ note_font_color 0xff
+ xpos 32
+ ypos 395
+}
+StickyNote {
+ inputs 0
+ name StickyNote1
+ label "shortcut: Ctrl+Alt+O"
+ note_font "Verdana Bold"
+ note_font_size 15
+ note_font_color 0xff
+ xpos 40
+ ypos 155
+}
