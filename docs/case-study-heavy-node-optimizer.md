@@ -6,7 +6,7 @@
 ## Overview
 A lightweight Nuke tool that lets compositors **bulk disable / enable / toggle “heavy” nodes by node Class** using a menu action or hotkey. A small editor UI manages the “heavy class list” and saves it to a local JSON config. The tool only touches each node’s `disable` knob (safe, reversible).
 
-## Demo (planned)
+## Demo
 ![Toggle heavy nodes demo](../media/demo_toggle.gif)
 
 **Planned assets**
