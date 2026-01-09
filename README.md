@@ -9,9 +9,7 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 
 ## Demo
 
-<!-- Uncomment once the file exists:
 ![Toggle heavy nodes demo](media/demo_toggle.gif)
--->
 
 Short demo (coming next): one hotkey toggles **N heavy nodes** (**N→1 action**).
 
