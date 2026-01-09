@@ -11,19 +11,6 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 
 ![Toggle heavy nodes demo](media/demo_toggle.gif)
 
-Short demo (coming next): one hotkey toggles **N heavy nodes** (**N→1 action**).
-
-**Planned 10–20s GIF (procedural / no external footage):**
-1. Show Node Graph + Viewer with the “heavy nodes” chain **enabled**.
-2. Briefly show: `Nuke > Scripts > Optimizer`.
-3. Trigger **Toggle heavy nodes** (Ctrl+Alt+O) → nodes go **disabled** (visible in graph) and Viewer output changes.
-4. Optional: toggle again for a quick **A/B/A** loop.
-5. Optional (1–2s): open **Optimizer editor** to show the class list is configurable.
-
-Planned screenshots:
-- `media/screenshot_menu.png` (Scripts > Optimizer menu)
-- `media/screenshot_editor.png` (Optimizer editor)
-
 ## Quick start
 
 1) Copy `nuke_optimizer/` into your `.nuke` directory:
