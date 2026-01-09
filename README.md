@@ -9,7 +9,7 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 
 ## Demo
 
-![Toggle heavy nodes demo](media/demo_toggle###.gif)
+![Toggle heavy nodes demo](media/demo_toggle.gif)
 
 ## Quick start
 
