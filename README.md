@@ -12,6 +12,7 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 - Case study: [`docs/case-study-heavy-node-optimizer.md`](docs/case-study-heavy-node-optimizer.md)
 - Release: [GitHub Releases](https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/releases)
 - Issues / roadmap: [GitHub Issues](https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/issues)
+- Feedback / bugs: https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/issues
 
 ## Share (copy/paste)
 
@@ -151,6 +152,28 @@ Log file:
 - Windows: `C:\\Users\\<you>\\.nuke\\optimizer.log`
 - macOS: `/Users/<you>/.nuke/optimizer.log`
 - Linux: `/home/<you>/.nuke/optimizer.log`
+
+## Feedback / bug reports
+
+Open an issue: https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/issues
+
+Please include (so it’s reproducible):
+- Nuke version (e.g. 15.2v6) + OS (Windows/macOS/Linux)
+- Qt binding (PySide2 for Nuke 13–15, PySide6 for Nuke 16+)
+- Steps to reproduce + expected vs actual
+- Log file (`optimizer.log`) from the **Logging** section above
+- (Optional) your config file from **Configuration** (redact any studio paths)
+
+Copy/paste template:
+```text
+Nuke version:
+OS:
+Qt (PySide2/PySide6):
+What I did (steps):
+Expected:
+Actual:
+Log attached:
+Config attached (optional):
 
 ## How it works (high-level)
 
