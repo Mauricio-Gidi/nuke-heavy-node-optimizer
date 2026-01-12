@@ -1,4 +1,8 @@
 # Nuke Heavy Node Optimizer (`nuke-heavy-node-optimizer`)
+![Nuke](https://img.shields.io/badge/Nuke-13%2B-informational)
+![Qt](https://img.shields.io/badge/PySide-PySide2%20%7C%20PySide6-informational)
+![OS](https://img.shields.io/badge/OS-Windows%20%7C%20macOS%20%7C%20Linux-informational)
+![License](https://img.shields.io/badge/License-MIT-success)
 
 Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across a script, with a small editor UI to manage the class list.
 
@@ -6,6 +10,9 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 - Hotkey: **Ctrl+Alt+O**
 - Safety: only touches each node’s `disable` knob
 - Case study: [`docs/case-study-heavy-node-optimizer.md`](docs/case-study-heavy-node-optimizer.md)
+- Release: [GitHub Releases](https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/releases)
+- Issues / roadmap: [GitHub Issues](https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/issues)
+
 
 ## Demo
 
@@ -13,10 +20,10 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 
 ## Quick start
 
-1) Copy `nuke_optimizer/` into your `.nuke` directory:
-- Windows: `C:\Users\<you>\.nuke\`
-- macOS: `/Users/<you>/.nuke/`
-- Linux: `/home/<you>/.nuke/`
+1) Copy the entire `nuke_optimizer/` folder into your `.nuke` directory so you end up with:
+- Windows: `C:\Users\<you>\.nuke\nuke_optimizer\`
+- macOS: `/Users/<you>/.nuke/nuke_optimizer/`
+- Linux: `/home/<you>/.nuke/nuke_optimizer/`
 
 2) Add this to `~/.nuke/init.py` (create if needed):
 
@@ -27,6 +34,19 @@ nuke.pluginAddPath("./nuke_optimizer")
 
 3) Restart Nuke (GUI) → open:
 - `Nuke > Scripts > Optimizer > Toggle heavy nodes`
+
+## Repository layout
+
+```text
+nuke-heavy-node-optimizer/
+├─ nuke_optimizer/                # Nuke plugin package (this is what you install)
+│  ├─ menu.py                     # Nuke menu registration entrypoint
+│  ├─ mvc/                        # UI (Qt) layer
+│  └─ optimizer/                  # Nuke-facing services + persistence
+├─ docs/
+│  └─ case-study-heavy-node-optimizer.md
+└─ media/
+   └─ demo_toggle.gif
 
 ## Problem
 
