@@ -4,7 +4,7 @@
 ![OS](https://img.shields.io/badge/OS-Windows%20%7C%20macOS%20%7C%20Linux-informational)
 ![License](https://img.shields.io/badge/License-MIT-success)
 
-Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across a script, with a small editor UI to manage the class list.
+Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across a script, with a small editor UI to manage which node classes are treated as heavy.
 
 - Menu: `Nuke > Scripts > Optimizer`
 - Hotkey: **Ctrl+Alt+O**
@@ -32,7 +32,9 @@ Bulk toggle heavy nodes in Nuke safely (only touches `disable`), with a class-li
 - macOS: `/Users/<you>/.nuke/nuke_optimizer/`
 - Linux: `/home/<you>/.nuke/nuke_optimizer/`
 
-2) Add this to `~/.nuke/init.py` (create if needed):
+2) Add this to your `.nuke/init.py` (create if needed):
+- Windows: `C:\Users\<you>\.nuke\init.py`
+- macOS/Linux: `~/.nuke/init.py`
 
 ```python
 import nuke
