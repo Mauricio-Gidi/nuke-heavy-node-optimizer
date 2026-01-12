@@ -12,7 +12,6 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 - Case study: [`docs/case-study-heavy-node-optimizer.md`](docs/case-study-heavy-node-optimizer.md)
 - Release: [GitHub Releases](https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/releases)
 - Issues / roadmap: [GitHub Issues](https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/issues)
-- Feedback / bugs: https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/issues
 
 ## Share (copy/paste)
 
