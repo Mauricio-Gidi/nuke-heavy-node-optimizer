@@ -281,5 +281,6 @@ def _config_path() -> Path:
     Returns:
         Path: Absolute path to the JSON config file on disk.
     """
-    root = Path.home() / ".nuke" / f"{config.APP_DIR_NAME}_data"
+    root = Path.home() / ".nuke" / f"{config.APP_DIR_NAME}"
     return root / config.FILE_NAME
+
