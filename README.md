@@ -122,6 +122,13 @@ In the editor you can:
 
 > Nodes without a `disable` knob are skipped.
 
+## Safety, undo, and limitations
+
+- **Undo:** Bulk actions (Toggle / Disable / Enable heavy nodes) are wrapped in **one** undo step (Ctrl+Z / Cmd+Z).
+- **What it changes:** Only the `disable` knob on nodes whose **Class()** is marked as heavy and enabled in the Optimizer UI.
+- **What it does not do:** Does not delete nodes, change connections, or modify any other knobs.
+- **Limitations:** Nodes without a `disable` knob (or nodes that refuse edits due to locks/edge cases) are skipped and logged.
+
 ## Configuration (file + schema)
 
 ### Config file location
