@@ -217,86 +217,73 @@ def _get_target_nodes():
 
 
 def apply_heavy_nodes(action: Literal["disable", "enable", "toggle"]) -> dict:
-    """Apply a bulk operation to all configured/toggled heavy nodes.
+    """
+    Apply a bulk operation to all configured + toggled “heavy” nodes.
 
-    This function centralises the logic for enabling, disabling or
-    toggling the ``disable`` knob on every "heavy" node in the current
-    script.
-
-    The action is interpreted as follows:
-
-    - ``"disable"`` - set ``disable=True`` on all target nodes.
-    - ``"enable"`` - set ``disable=False`` on all target nodes.
-    - ``"toggle"`` - inspect the target nodes; if any are currently
-      enabled (``disable=False``) then they will all be disabled,
-      otherwise they will all be enabled.
+    A target (“heavy”) node is:
+      - Its class is present in the saved configuration `classes` list,
+      - That class is also present in the `toggled` list,
+      - The node has a `disable` knob,
+      - Node discovery is global (includes nodes inside Groups/nested Groups).
 
     Args:
-        action: One of ``"disable"``, ``"enable"`` or ``"toggle"`` to
-            select the desired behaviour.
+        action:
+            - "disable": set disable=True for all target nodes
+            - "enable":  set disable=False for all target nodes
+            - "toggle":  if any target node is currently enabled (disable=False),
+                         disable all; otherwise enable all
 
     Returns:
-        dict: Summary of what happened, shaped like::
-
-            {
-                "action": "disabled" | "enabled",
-                "changed": <int>,  # how many nodes actually changed state
-                "total": <int>,    # how many nodes were considered
-            }
-
-        When no target nodes are found, ``"changed"`` and ``"total"``
-        will both be zero and ``"action"`` will default to ``"disabled"``.
+        dict with:
+            - "action":  "disabled" or "enabled" (final state applied)
+            - "changed": number of nodes that actually changed state
+            - "total":   number of target nodes considered
     """
+    import nuke
+
     nodes = _get_target_nodes()
     total = len(nodes)
     if total == 0:
-        logger.info(
-            "No heavy nodes matched configured/toggled classes; nothing to %s.",
-            action,
-        )
         return {"action": "disabled", "changed": 0, "total": 0}
 
-    # Determine target disable state.
     if action == "toggle":
-        # If any target node is enabled (disable=False), disable all; else enable all.
-        any_enabled = False
-        for node in nodes:
-            try:
-                if not bool(node["disable"].value()):
-                    any_enabled = True
-                    break
-            except Exception as e:
-                node_name = getattr(node, "name", lambda: "<unnamed>")()
-                logger.debug(
-                    "Ignoring node %s while determining toggle target: %s",
-                    node_name,
-                    e,
-                )
-        target_disable = any_enabled
+        # If any target node is enabled, we disable all; else enable all.
+        target_disable = any(not bool(n["disable"].value()) for n in nodes)
     else:
-        target_disable = action == "disable"
+        target_disable = (action == "disable")
+
+    label = f"Heavy Node Optimizer: {'Disable' if target_disable else 'Enable'} heavy nodes"
 
     changed = 0
-    for node in nodes:
-        try:
-            knob = node["disable"]
-            if bool(knob.value()) != target_disable:
+    undo = nuke.Undo()
+    undo_started = False
+
+    try:
+        for node in nodes:
+            try:
+                knob = node["disable"]
+                if bool(knob.value()) == target_disable:
+                    continue
+
+                if not undo_started:
+                    undo.begin(label)
+                    undo_started = True
+
                 knob.setValue(bool(target_disable))
                 changed += 1
-        except Exception as e:
-            node_name = getattr(node, "name", lambda: "<unnamed>")()
-            logger.warning(
-                "Could not change 'disable' on node %s (action=%s): %s",
-                node_name,
-                action,
-                e,
-            )
+            except Exception as e:
+                node_name = getattr(node, "name", lambda: "<unnamed>")()
+                logger.warning("Failed to set disable on %s: %s", node_name, e)
+    finally:
+        if undo_started:
+            undo.end()
 
     return {
         "action": "disabled" if target_disable else "enabled",
         "changed": changed,
         "total": total,
     }
+
 
 
 def heavy_nodes(toggle: bool = True) -> dict:
@@ -369,3 +356,4 @@ def _require_nuke():
         )
         return None
     return nuke
+
