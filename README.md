@@ -14,6 +14,10 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 - Issues / roadmap: [GitHub Issues](https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/issues)
 - Portfolio page: https://mauricio-gidi.github.io/projects/#heavy-node-optimizer
 
+## Demo
+
+![Toggle heavy nodes demo](media/demo_toggle.gif)
+
 ## Share (copy/paste)
 
 Bulk toggle heavy nodes in Nuke safely (only touches `disable`), with a class-list editor.
@@ -22,10 +26,6 @@ Bulk toggle heavy nodes in Nuke safely (only touches `disable`), with a class-li
 - Repo: https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer
 - Portfolio: https://mauricio-gidi.github.io/projects/#heavy-node-optimizer
 - Install: see **Quick start** (or download the latest release from **Releases**).
-
-## Demo
-
-![Toggle heavy nodes demo](media/demo_toggle.gif)
 
 ## Quick start
 
