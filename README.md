@@ -6,16 +6,6 @@
 
 Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across a script, with a small editor UI to manage which node classes are treated as heavy.
 
-* Menu: `Nuke > Scripts > Optimizer`
-* Hotkey: Ctrl+Alt+O
-* Download (v0.1.0): `https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/releases/download/v0.1.0/nuke_optimizer_v0.1.0.zip`
-- Portfolio page: https://mauricio-gidi.github.io/projects/nuke-heavy-node-optimizer/
-* Safety: see **Safety / Undo / Known limitations** below (disable-knob only).
-* Case study: docs/case-study-heavy-node-optimizer.md
-* Changelog: CHANGELOG.md
-* Release: GitHub Releases
-* Issues / roadmap: GitHub Issues
-
 - Menu: `Nuke > Scripts > Optimizer`
 - Hotkey: **Ctrl+Alt+O**
 - Safety: only touches each node’s `disable` knob
