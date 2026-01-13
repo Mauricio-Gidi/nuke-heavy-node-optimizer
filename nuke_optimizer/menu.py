@@ -10,7 +10,7 @@ Its helpers rely on the ``nuke`` module and the ``mvc.app`` and
 
 Notes:
     - Nuke's ``Menu.addCommand`` supports the ``shortcut=...`` keyword in
-      Nuke 13+ (and later). :contentReference[oaicite:0]{index=0}
+      Nuke 13+ (and later).
 """
 
 
@@ -89,3 +89,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
