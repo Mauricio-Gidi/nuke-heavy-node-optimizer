@@ -4,7 +4,7 @@
 ![OS](https://img.shields.io/badge/OS-Windows%20%7C%20macOS%20%7C%20Linux-informational)
 ![License](https://img.shields.io/badge/License-MIT-success)
 
-Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across a script, with a small editor UI to manage which node classes are treated as heavy.
+Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across the current Nuke script, with a small editor UI to manage which node classes are treated as heavy.
 
 - Menu: `Nuke > Scripts > Optimizer`
 - Hotkey: **Ctrl+Alt+O**
