@@ -4,28 +4,23 @@
 ![OS](https://img.shields.io/badge/OS-Windows%20%7C%20macOS%20%7C%20Linux-informational)
 ![License](https://img.shields.io/badge/License-MIT-success)
 
-Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across the current Nuke script, with a small editor UI to manage which node classes are treated as heavy.
+Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across the current Nuke script — safely (only touches each node’s `disable` knob).
 
-- Menu: `Nuke > Scripts > Optimizer`
-- Hotkey: **Ctrl+Alt+O**
-- Safety: only touches each node’s `disable` knob
-- Case study: [`docs/case-study-heavy-node-optimizer.md`](docs/case-study-heavy-node-optimizer.md)
-- Release: [GitHub Releases](https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/releases)
-- Issues / roadmap: [GitHub Issues](https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/issues)
-- Portfolio page: https://mauricio-gidi.github.io/projects/#heavy-node-optimizer
-
-## Demo
+**Demo (10 seconds):**
 
 ![Toggle heavy nodes demo](media/demo_toggle.gif)
 
-## Share (copy/paste)
+**Read next:**
+- **Case study (2–3 min):** [`docs/case-study-heavy-node-optimizer.md`](docs/case-study-heavy-node-optimizer.md)
+- Install: jump to [Quick start](#quick-start)
+- Usage: jump to [Usage](#usage)
 
-Bulk toggle heavy nodes in Nuke safely (only touches `disable`), with a class-list editor.
+**Key facts (skim):**
+- Menu: `Nuke > Scripts > Optimizer`  |  Hotkey: **Ctrl+Alt+O**
+- Undo: bulk actions are **one** undo step
+- Defaults: **common heavy nodes are enabled on first run** (editable in the Optimizer editor)
 
-- Demo GIF: `media/demo_toggle.gif`
-- Repo: https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer
-- Portfolio: https://mauricio-gidi.github.io/projects/#heavy-node-optimizer
-- Install: see **Quick start** (or download the latest release from **Releases**).
+Repo links: [Releases](https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/releases) · [Issues/Roadmap](https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer/issues) · Portfolio: https://mauricio-gidi.github.io/projects/#heavy-node-optimizer
 
 ## Quick start
 
@@ -58,6 +53,7 @@ nuke-heavy-node-optimizer/
 │  └─ case-study-heavy-node-optimizer.md
 └─ media/
    └─ demo_toggle.gif
+```
 
 ## Problem
 
@@ -122,6 +118,17 @@ In the editor you can:
 
 > Nodes without a `disable` knob are skipped.
 
+
+## Share (quick blurb)
+
+Bulk toggle heavy nodes in Nuke safely (only touches `disable`), with a class-list editor.
+
+- Demo GIF: `media/demo_toggle.gif`
+- Case study: `docs/case-study-heavy-node-optimizer.md`
+- Repo: https://github.com/Mauricio-Gidi/nuke-heavy-node-optimizer
+- Portfolio: https://mauricio-gidi.github.io/projects/#heavy-node-optimizer
+- Install: see **Quick start** (or download the latest release from **Releases**).
+
 ## Safety, undo, and limitations
 
 - **Undo:** Bulk actions (Toggle / Disable / Enable heavy nodes) are wrapped in **one** undo step (Ctrl+Z / Cmd+Z).
@@ -147,7 +154,7 @@ In the editor you can:
 
 - `classes`: ordered list of node Class names shown in the editor.
 - `toggled`: subset of `classes` that are currently active (checked).
-- Default on first run: `toggled` is empty (nothing active until you check classes).
+- Default on first run: `toggled` includes the default heavy-node class list (you can uncheck anything you don’t want).
 
 ### Reset / recovery
 - Use **Optimizer editor → Reset defaults** (restores default class list), or delete the config file and restart Nuke.
@@ -208,7 +215,7 @@ Config attached (optional):
 - Check `optimizer.log` for the exact failing module.
 
 ### “Tool does nothing”
-- No classes are active (checked) in the editor
+- No classes are active (checked) in the editor (you may have unchecked all)
 - No nodes of those classes exist in the script
 - Target nodes lack a `disable` knob (skipped)
 
