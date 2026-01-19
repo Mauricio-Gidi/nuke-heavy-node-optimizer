@@ -6,8 +6,6 @@
 
 Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across the current Nuke script — safely (only touches each node’s `disable` knob).
 
-**Demo (10 seconds):**
-
 ![Toggle heavy nodes demo](media/demo_toggle.gif)
 
 **Read next:**
