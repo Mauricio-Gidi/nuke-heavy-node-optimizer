@@ -9,11 +9,11 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 ![Toggle heavy nodes demo](media/demo_toggle.gif)
 
 **Read next:**
-- **Case study (2–3 min):** [`docs/case-study-heavy-node-optimizer.md`](docs/case-study-heavy-node-optimizer.md)
+- **Case study:** [`docs/case-study-heavy-node-optimizer.md`](docs/case-study-heavy-node-optimizer.md)
 - Install: jump to [Quick start](#quick-start)
 - Usage: jump to [Usage](#usage)
 
-**Key facts (skim):**
+**Key facts:**
 - Menu: `Nuke > Scripts > Optimizer`  |  Hotkey: **Ctrl+Alt+O**
 - Undo: bulk actions are **one** undo step
 - Defaults: **common heavy nodes are enabled on first run** (editable in the Optimizer editor)
@@ -189,6 +189,7 @@ Expected:
 Actual:
 Log attached:
 Config attached (optional):
+```
 
 ## How it works (high-level)
 
