@@ -111,7 +111,7 @@ def safe_load_or_default() -> dict[str, Any]:
         data: dict[str, Any] = {
             "version": config.CONFIG_VERSION,
             "classes": list(defaults.RENDER_INTENSIVE_NODES),
-            "toggled": [],  # default: nothing checked
+            "toggled": list(defaults.RENDER_INTENSIVE_NODES),  # default: enabled on first run
         }
         _canonicalize(data)
         try:
@@ -283,4 +283,5 @@ def _config_path() -> Path:
     """
     root = Path.home() / ".nuke" / f"{config.APP_DIR_NAME}"
     return root / config.FILE_NAME
+
 
