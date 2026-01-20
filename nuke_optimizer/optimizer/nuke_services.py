@@ -244,7 +244,13 @@ def apply_heavy_nodes(action: Literal["disable", "enable", "toggle"]) -> dict:
     nodes = _get_target_nodes()
     total = len(nodes)
     if total == 0:
-        return {"action": "disabled", "changed": 0, "total": 0}
+        from optimizer import storage
+        data = storage.safe_load_or_default()
+        classes = set(data.get("classes", []))
+        toggled = set(data.get("toggled", []))
+        if not (classes & toggled):
+            return {"action": "noop", "changed": 0, "total": 0, "reason": "no_active_classes"}
+        return {"action": "noop", "changed": 0, "total": 0, "reason": "no_matching_nodes"}
 
     if action == "toggle":
         # If any target node is enabled, we disable all; else enable all.
@@ -356,4 +362,5 @@ def _require_nuke():
         )
         return None
     return nuke
+
 
