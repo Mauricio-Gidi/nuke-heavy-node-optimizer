@@ -1,47 +1,87 @@
-"""Register Nuke menu entries for the Optimizer tool.
+"""
+Register Nuke menu entries for the Optimizer tool.
 
-Creates or reuses the "Optimizer" submenu under Nuke's "Scripts" menu and
-registers commands that open the Optimizer UI and enable, disable, or
-toggle heavy nodes based on the user's saved configuration.
+This module is intended to be executed inside a running Nuke session.
+When loaded, it registers menu items under:
 
-This module is intended to be imported inside a running Nuke session.
-Its helpers rely on the ``nuke`` module and the ``mvc.app`` and
-``optimizer.nuke_services`` entrypoints.
+    Nuke > Scripts > Optimizer
 
-Notes:
-    - Nuke's ``Menu.addCommand`` supports the ``shortcut=...`` keyword in
-      Nuke 13+ (and later).
+It also provides safe wrappers so menu/hotkey actions:
+- configure logging once,
+- handle exceptions cleanly,
+- provide user feedback (warning on no-op, short success message).
 """
 
 
 def _ensure_menu(nuke):
-    """Return the Optimizer submenu attached to Nuke's Scripts menu.
-
-    Ensures that the 'Scripts/Optimizer' submenu exists and returns it so
-    Optimizer-related commands can be registered under it.
-
-    Args:
-        nuke: Nuke module used to access and manipulate menus.
-
-    Returns:
-        The Optimizer submenu under the Scripts menu.
-    """
     return nuke.menu("Nuke").addMenu("Scripts").addMenu("Optimizer")
 
 
-def _add_optimizer_entries(menu):
-    """Register Optimizer commands under the given Nuke menu.
+def _format_result(res: dict) -> str:
+    total = int(res.get("total", 0))
+    changed = int(res.get("changed", 0))
+    action = res.get("action", "noop")
+    reason = res.get("reason", "")
 
-    Adds menu entries to launch the Optimizer UI and to enable, disable,
-    or toggle heavy nodes using the user's saved configuration.
+    if total == 0:
+        if reason == "no_active_classes":
+            return "No active heavy classes. Open 'Optimizer editor' and check at least one class."
+        return "No heavy nodes found for the active classes in the current script."
 
-    Args:
-        menu: Nuke menu object under which Optimizer commands are added.
+    verb = "Disabled" if action == "disabled" else "Enabled"
+    return f"{verb} {changed} node{'s' if changed != 1 else ''} (out of {total})."
+
+
+def _run_action(action: str) -> None:
     """
+    action: one of 'toggle', 'enable', 'disable'
+    """
+    import nuke
+    from mvc import app
+    from optimizer import nuke_services
+
+    app.ensure_logging()
+
+    try:
+        if action == "toggle":
+            res = nuke_services.toggle_heavy_nodes()
+        elif action == "enable":
+            res = nuke_services.apply_heavy_nodes("enable")
+        elif action == "disable":
+            res = nuke_services.apply_heavy_nodes("disable")
+        else:
+            nuke.message(f"Optimizer: Unknown action '{action}'.")
+            return
+
+        msg = _format_result(res)
+
+        # Non-modal feedback by default (less annoying for hotkey use).
+        # Use nuke.message only for errors; warnings go to the script editor/status.
+        if int(res.get("total", 0)) == 0:
+            nuke.warning(f"Heavy Node Optimizer: {msg}")
+        else:
+            nuke.tprint(f"Heavy Node Optimizer: {msg}")
+
+    except Exception as e:
+        # Friendly user-facing error + point to logs.
+        nuke.message(
+            "Heavy Node Optimizer failed.\n\n"
+            f"{e}\n\n"
+            "Check optimizer.log for details."
+        )
+
+
+def _add_optimizer_entries(menu):
+    # Avoid accidental duplicates if register() is called more than once.
+    try:
+        if menu.findItem("Toggle heavy nodes"):
+            return
+    except Exception:
+        pass
+
     menu.addCommand(
         "Toggle heavy nodes",
-        "from mvc import app; from optimizer import nuke_services; "
-        "app.ensure_logging(); nuke_services.toggle_heavy_nodes()",
+        "import menu; menu._run_action('toggle')",
         shortcut="Ctrl+Alt+O",
         tooltip="Toggle disable on all heavy nodes selected in Optimizer.",
     )
@@ -49,44 +89,35 @@ def _add_optimizer_entries(menu):
     menu.addCommand(
         "Optimizer editor",
         "from mvc import app; app.show()",
-        tooltip=(
-            "Open the Optimizer window to choose which node classes are "
-            "treated as heavy node classes."
-        ),
+        tooltip="Open the Optimizer window to manage heavy node classes.",
     )
 
-    # Visual separator between the main toggle/editor entries and the
-    # explicit enable/disable actions.
     menu.addSeparator()
 
     menu.addCommand(
         "Disable Heavy Nodes",
-        "from mvc import app; from optimizer import nuke_services; "
-        "app.ensure_logging(); nuke_services.heavy_nodes(toggle=False)",
+        "import menu; menu._run_action('disable')",
         tooltip="Disable all heavy nodes currently marked as heavy.",
     )
 
     menu.addCommand(
         "Enable Heavy Nodes",
-        "from mvc import app; from optimizer import nuke_services; "
-        "app.ensure_logging(); nuke_services.heavy_nodes(toggle=True)",
+        "import menu; menu._run_action('enable')",
         tooltip="Enable all heavy nodes currently marked as heavy.",
     )
 
 
-def main():
-    """Create or refresh the Optimizer entries in the Nuke menu.
-
-    Ensures that the Scripts menu exists and (re)adds the Optimizer
-    commands under the Optimizer submenu. Safe to call multiple times
-    in a session.
-    """
+def register():
     import nuke
-
     menu = _ensure_menu(nuke)
     _add_optimizer_entries(menu)
 
 
-if __name__ == "__main__":
-    main()
-
+# Auto-register when Nuke loads this file
+try:
+    import nuke  # noqa: F401
+except Exception:
+    # Outside Nuke: do nothing
+    pass
+else:
+    register()
