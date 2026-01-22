@@ -169,7 +169,7 @@ class Controller:
         self.model.replace_all(classes)
 
         # Paint the list: start unchecked, then enable only persisted toggles.
-        self.view.set_items(self.model.as_list(), checked=False)
+        self.view.set_items(self.model.as_list(), checked=True)
         toggled_set = set(toggled_list)
         for name in self.model.as_list():
             if name in toggled_set:
