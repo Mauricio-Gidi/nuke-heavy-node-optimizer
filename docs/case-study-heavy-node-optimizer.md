@@ -9,11 +9,6 @@ A lightweight Nuke tool that lets compositors **bulk disable / enable / toggle â
 ## Demo
 ![Toggle heavy nodes demo](../media/demo_toggle.gif)
 
-**Planned assets**
-- `/media/demo_toggle.gif`
-- `/media/screenshot_nodegraph_before_after.png`
-- `/media/screenshot_editor.png`
-
 ## Problem
 - Heavy processing nodes can slow down iteration (viewer responsiveness + quick test renders).
 - Manually disabling nodes is repetitive and inconsistent across scripts.
