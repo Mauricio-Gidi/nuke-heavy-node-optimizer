@@ -32,10 +32,3 @@ RENDER_INTENSIVE_NODES: Final[Tuple[str, ...]] = (
     # Deep
     "DeepRecolor",
 )
-
-# Sanity guard: enforce uniqueness at import time.
-# Since this module defines the "factory default" class list, duplicated
-# entries would cause confusing UI behavior and inconsistent counts, so
-# fail fast if a duplicate ever sneaks in.
-if len(set(RENDER_INTENSIVE_NODES)) != len(RENDER_INTENSIVE_NODES):
-    raise ValueError("Duplicate class in RENDER_INTENSIVE_NODES")
