@@ -204,11 +204,6 @@ Config attached (optional):
   ```
   Confirm your `.nuke` path (and/or `./nuke_optimizer`) is listed, then restart Nuke.
 
-### `ModuleNotFoundError: No module named 'PySide2'` in Nuke 16+
-- Nuke 16+ uses PySide6; any plugin importing PySide2 directly will fail.
-- This repo uses a compatibility shim; if you edited imports, revert to the shim approach.
-- Check `optimizer.log` for the exact failing module.
-
 ### “Tool does nothing”
 - No classes are active (checked) in the editor (you may have unchecked all)
 - No nodes of those classes exist in the script
