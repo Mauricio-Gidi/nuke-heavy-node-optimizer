@@ -37,7 +37,7 @@ A lightweight Nuke tool that lets compositors **bulk disable / enable / toggle �
 
 ## Compatibility / support posture
 **Tested (verified):** Windows — Nuke **13.0v10**, **15.2v6**, **16.0v8**  
-**Supported (claimed):** Nuke 13–16. Nuke 16+ uses PySide6; earlier versions use PySide2.
+**Supported (claimed):** Windows/macOS/Linux — Nuke 13-16.
 
 ## Config + logs
 - Config: `~/.nuke/nuke_optimizer_data/config.json`  
