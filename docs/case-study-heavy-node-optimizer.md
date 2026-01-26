@@ -35,9 +35,9 @@ A lightweight Nuke tool that lets compositors **bulk disable / enable / toggle �
 - UI uses a small MVC layer (`mvc/`) and a compatibility shim (`qt_compat.py`).  
 - Actions read config → find nodes by class via Nuke’s API → set `disable`.
 
-## Compatibility / support posture
-**Tested (verified):** Windows — Nuke **13.0v10**, **15.2v6**, **16.0v8**  
-**Supported (claimed):** Windows/macOS/Linux — Nuke 13-16.
+## Compatibility
+**Tested:** Windows — Nuke **13.0v10**, **15.2v6**, **16.0v8**  
+**Supported:** Windows/macOS/Linux — Nuke 13-16.
 
 ## Config + logs
 - Config: `~/.nuke/nuke_optimizer_data/config.json`  
