@@ -63,7 +63,7 @@ Provides one menu/hotkey action to toggle a configurable list of node classes by
 
 ## Measurable impact
 
-Preview switching becomes **N manual edits → 1 action** (N = number of heavy nodes in the script; the planned demo uses ~10–30 nodes).
+Preview switching becomes **N manual edits → 1 action** (N = number of heavy nodes in the script).
 
 ## Features
 
