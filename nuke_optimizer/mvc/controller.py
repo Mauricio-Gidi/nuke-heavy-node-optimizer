@@ -5,11 +5,6 @@ The controller coordinates three pieces:
 * **View** (:mod:`mvc.view`) - the Qt widgets and small helpers for reading/writing UI state.
 * **Model** (:mod:`mvc.model`) - the authoritative ordered set of class names.
 * **Storage + Services** (:mod:`optimizer.storage`, :mod:`optimizer.nuke_services`) - persistence and Nuke actions.
-
-Design notes:
-
-* The view is kept "passive": it does not talk to disk or call the Nuke API.
-* Configuration writes and node-count refreshes are **debounced** via timers to keep the UI responsive.
 """
 
 from __future__ import annotations
