@@ -11,14 +11,6 @@ except Exception:  # pragma: no cover - depends on host DCC
     from PySide2 import QtCore, QtGui, QtWidgets  # type: ignore
 
 
-# -----------------------------------------------------------------------------
-# -
-# -----------------------------------------------------------------------------
-# Enum / flag compatibility
-# -----------------------------------------------------------------------------
-# -
-# -----------------------------------------------------------------------------
-
 # ItemDataRole.UserRole (Qt6) vs Qt.UserRole (Qt5)
 try:
     USER_ROLE = QtCore.Qt.ItemDataRole.UserRole  # type: ignore[attr-defined]
