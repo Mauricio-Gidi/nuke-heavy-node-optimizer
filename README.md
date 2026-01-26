@@ -157,10 +157,6 @@ Bulk toggle heavy nodes in Nuke safely (only touches `disable`), with a class-li
 ### Reset / recovery
 - Use **Optimizer editor → Reset defaults** (restores default class list), or delete the config file and restart Nuke.
 
-Preset formats (import/export):
-- JSON: `{"version": <int>, "classes": [...], "toggled": [...]}`
-- CSV: `class,toggled`
-
 ## Logging
 
 Log file:
