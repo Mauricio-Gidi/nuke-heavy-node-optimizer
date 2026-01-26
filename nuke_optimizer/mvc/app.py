@@ -144,7 +144,7 @@ def show() -> None:
     view_instance = view.View()
 
     # Controller: wires view<->model and handles persistence/behavior
-    controller.Controller(view_instance, model_instance)  # noqa: F841  (intentionally unused binding)
+    controller.Controller(view_instance, model_instance)
 
     # Cache the view for single-instance reuse and present it
     VIEW = view_instance
