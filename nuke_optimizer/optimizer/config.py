@@ -19,12 +19,3 @@ APP_DIR_NAME: str = "nuke_optimizer_data"
 # This is combined with APP_DIR_NAME inside optimizer.storage to
 # form the full configuration path.
 FILE_NAME: str = "config.json"
-
-# Defaults for UI/engine behavior (reserved for future use).
-# The comments below document intended semantics for potential future
-# configuration keys that may live alongside the constants above:
-#
-#   - scope: 'selected' / 'all'  -> whether operations act only on
-#     selected nodes or on every node in the script.
-#   - recurse_into_groups: bool  -> whether group nodes should be recursed
-#     into when searching for heavy nodes.
