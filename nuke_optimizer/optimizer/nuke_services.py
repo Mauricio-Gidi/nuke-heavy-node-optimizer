@@ -283,9 +283,6 @@ def apply_heavy_nodes(action: Literal["disable", "enable", "toggle"]) -> dict:
 def heavy_nodes(toggle: bool = True) -> dict:
     """Compatibility wrapper for legacy heavy-node behaviour.
 
-    Historically this function accepted a boolean to control the
-    operation:
-
     - `toggle=True`  -> enable heavy nodes (set `disable=False`).
     - `toggle=False` -> disable heavy nodes (set `disable=True`).
 
