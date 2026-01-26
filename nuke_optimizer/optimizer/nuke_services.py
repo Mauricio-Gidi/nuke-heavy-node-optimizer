@@ -5,12 +5,6 @@ from __future__ import annotations
 import logging
 from typing import Iterable
 
-try:
-    # Python 3.8+
-    from typing import Literal
-except Exception:  # pragma: no cover - Python 3.7 (Nuke 13.x)
-    from typing_extensions import Literal  # type: ignore
-
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +199,7 @@ def _get_target_nodes():
     return nodes_out
 
 
-def apply_heavy_nodes(action: Literal["disable", "enable", "toggle"]) -> dict:
+def apply_heavy_nodes(action: str) -> dict:
     """
     Apply a bulk operation to all configured + toggled 'heavy' nodes.
 
