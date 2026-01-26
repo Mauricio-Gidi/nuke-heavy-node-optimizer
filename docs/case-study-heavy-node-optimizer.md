@@ -19,7 +19,7 @@ A lightweight Nuke tool that lets compositors **bulk disable / enable / toggle �
 - One hotkey/menu action to **Toggle / Disable / Enable** all matching nodes.
 - Safe operation: only modifies the `disable` knob (no rewiring, no other knob edits).
 
-## Outcome (impact framing)
+## Outcome
 - Turns many manual per-node edits into **one repeatable action** (N edits → 1).
 - Standardizes a predictable “preview mode” workflow via a saved class list.
 - Reduces “forgot to re-enable” mistakes by providing a single global enable action.
