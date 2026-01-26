@@ -483,31 +483,6 @@ class View(QtWidgets.QWidget):
             ),
         )
 
-    def _format_label(
-        self,
-        base_name: str,
-        total: Optional[int] = None,
-        disabled: Optional[int] = None,
-    ) -> str:
-        """Return a label string combining the base name and counts.
-
-        If total is provided, adds a simple ``'(total)'`` suffix. If both
-        disabled and total are provided, adds a
-        ``'disabled/total disabled'`` suffix.
-
-        Args:
-            base_name: Base class name to display.
-            total: Total number of nodes of that class, if known.
-            disabled: Number of disabled nodes of that class, if known.
-
-        Returns:
-            A formatted label string suitable for display in the list.
-        """
-        if total is None:
-            return base_name
-        if disabled is None:
-            return f"{base_name}  ({total})"
-        return f"{base_name}  {disabled}/{total} disabled"
 
     def _base_name(self, item: QtWidgets.QListWidgetItem) -> str:
         """Return the class name stored on a list item."""
@@ -546,10 +521,7 @@ class View(QtWidgets.QWidget):
             item.setData(USER_ROLE + 1, disabled)
             item.setData(USER_ROLE + 2, total)
 
-            # Fallback/diagnostic text (delegate ignores it).
-            item.setText(self._format_label(name, total, disabled))
-            item.setToolTip(f"{name}: {total} nodes ({disabled} disabled)")
-
+    
     def show_status(
         self,
         text: str,
