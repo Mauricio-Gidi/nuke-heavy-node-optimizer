@@ -3,7 +3,7 @@
 # Canonical list consumed by the app.
 # This tuple represents the built-in set of heavy node classes. Users can
 # later override or extend this list via the Optimizer UI and config.
-RENDER_INTENSIVE_NODES: Final[Tuple[str, ...]] = (
+RENDER_INTENSIVE_NODES = (
     # Retiming
     "Kronos",  # NukeX/Studio
     "OFlow2",
