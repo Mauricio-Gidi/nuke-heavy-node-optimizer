@@ -2,25 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any
-
-BINDING = "PySide2"
 
 try:
     # Nuke 16+
     from PySide6 import QtCore, QtGui, QtWidgets  # type: ignore
-
-    BINDING = "PySide6"
 except Exception:  # pragma: no cover - depends on host DCC
     # Nuke 13-15
     from PySide2 import QtCore, QtGui, QtWidgets  # type: ignore
-
-    BINDING = "PySide2"
-
-
-def is_pyside6() -> bool:
-    """Return True when running under PySide6 / Qt6."""
-    return BINDING == "PySide6"
 
 
 # -----------------------------------------------------------------------------
@@ -73,40 +61,17 @@ except Exception:  # pragma: no cover
 try:
     ALIGN_LEFT = QtCore.Qt.AlignmentFlag.AlignLeft  # type: ignore[attr-defined]
     ALIGN_RIGHT = QtCore.Qt.AlignmentFlag.AlignRight  # type: ignore[attr-defined]
-    ALIGN_HCENTER = QtCore.Qt.AlignmentFlag.AlignHCenter  # type: ignore[attr-defined]
     ALIGN_VCENTER = QtCore.Qt.AlignmentFlag.AlignVCenter  # type: ignore[attr-defined]
-    ALIGN_CENTER = QtCore.Qt.AlignmentFlag.AlignCenter  # type: ignore[attr-defined]
 except Exception:  # pragma: no cover
     ALIGN_LEFT = QtCore.Qt.AlignLeft  # type: ignore[attr-defined]
     ALIGN_RIGHT = QtCore.Qt.AlignRight  # type: ignore[attr-defined]
-    ALIGN_HCENTER = QtCore.Qt.AlignHCenter  # type: ignore[attr-defined]
     ALIGN_VCENTER = QtCore.Qt.AlignVCenter  # type: ignore[attr-defined]
-    ALIGN_CENTER = QtCore.Qt.AlignCenter  # type: ignore[attr-defined]
 
 # Text elide mode (Qt6) vs Qt.ElideRight (Qt5)
 try:
     ELIDE_RIGHT = QtCore.Qt.TextElideMode.ElideRight  # type: ignore[attr-defined]
 except Exception:  # pragma: no cover
     ELIDE_RIGHT = QtCore.Qt.ElideRight  # type: ignore[attr-defined]
-
-
-def coerce_check_state(state: Any) -> Any:
-    """Convert an int-like state (common from Qt signals) to a CheckState enum.
-
-    In both Qt5 and Qt6, stateChanged signals typically pass an int.
-    Converting to the enum makes comparisons consistent across bindings.
-
-    Returns the original value if conversion is not possible.
-    """
-    try:
-        # Qt6 / PySide6
-        return QtCore.Qt.CheckState(int(state))  # type: ignore[attr-defined]
-    except Exception:
-        try:
-            # Qt5 / PySide2 may still accept this; otherwise return raw.
-            return int(state)
-        except Exception:
-            return state
 
 
 # -----------------------------------------------------------------------------
@@ -117,22 +82,11 @@ def coerce_check_state(state: Any) -> Any:
 # -
 # -----------------------------------------------------------------------------
 
-# Foundry notes QAction moved from QtWidgets (PySide2) to QtGui (PySide6).
-try:
-    QAction = QtGui.QAction  # type: ignore[attr-defined]
-except Exception:  # pragma: no cover
-    QAction = QtWidgets.QAction  # type: ignore[attr-defined]
-
-# Signals/slots are consistently named in PySide, but keep optional aliases.
-Signal = getattr(QtCore, "Signal", None)  # type: ignore[attr-defined]
-Slot = getattr(QtCore, "Slot", None)  # type: ignore[attr-defined]
 
 __all__ = [
-    "BINDING",
     "QtCore",
     "QtGui",
     "QtWidgets",
-    "is_pyside6",
     "USER_ROLE",
     "CHECKED",
     "UNCHECKED",
@@ -144,12 +98,6 @@ __all__ = [
     "MOVE_ACTION",
     "ALIGN_LEFT",
     "ALIGN_RIGHT",
-    "ALIGN_HCENTER",
     "ALIGN_VCENTER",
-    "ALIGN_CENTER",
-    "ELIDE_RIGHT",
-    "coerce_check_state",
-    "QAction",
-    "Signal",
-    "Slot",
+    "ELIDE_RIGHT"
 ]
