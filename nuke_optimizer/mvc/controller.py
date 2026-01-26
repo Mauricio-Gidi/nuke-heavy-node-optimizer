@@ -397,7 +397,7 @@ class Controller:
 
     def _on_export_clicked(self) -> None:
         """Export the current list to a JSON/CSV preset file."""
-        path, selected_filter = QtWidgets.QFileDialog.getSaveFileName(
+        path, _ = QtWidgets.QFileDialog.getSaveFileName(
             self.view,
             "Export Optimizer preset",
             "",
