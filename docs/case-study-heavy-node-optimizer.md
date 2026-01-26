@@ -42,4 +42,4 @@ A lightweight Nuke tool that lets compositors **bulk disable / enable / toggle â
 ## Config + logs
 - Config: `~/.nuke/nuke_optimizer_data/config.json`  
   Schema: `{ "version": 1, "classes": [...], "toggled": [...] }`
-- Logs: `~/.nuke/optimizer.log` (rotating)
+- Logs: `~/.nuke/optimizer.log`
