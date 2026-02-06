@@ -18,7 +18,7 @@ Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across 
 - Undo: bulk actions are **one** undo step
 - Defaults: **common heavy nodes are enabled on first run** (editable in the Optimizer editor)
 
-Links: [Portfolio](https://mauricio-gidi.github.io) | [GitHub](https://github.com/Mauricio-Gidi) | [LinkedIn](https://www.linkedin.com/in/mauricio-gidi-29689b22a/) | [Vimeo](https://vimeo.com/1006713311) | [IMDb](https://www.imdb.com/name/nm15902324/)
+Links: [Portfolio](https://mauricio-gidi.github.io) | [GitHub](https://github.com/Mauricio-Gidi) | [LinkedIn](https://www.linkedin.com/in/mauricio-gidi-29689b22a/)
 
 ## Quick start
 
