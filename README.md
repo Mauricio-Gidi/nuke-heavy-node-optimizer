@@ -4,7 +4,7 @@
 ![OS](https://img.shields.io/badge/OS-Windows%20%7C%20macOS%20%7C%20Linux-informational)
 ![License](https://img.shields.io/badge/License-MIT-success)
 
-Bulk **disable / enable / toggle** “heavy” nodes (by node **Class**) across the current Nuke script — safely (only touches each node’s `disable` knob).
+Bulk disable, enable, or toggle "heavy" nodes (by node class) across the current Nuke script - safely (only touches each node's disable knob).
 
 ![Toggle heavy nodes demo](media/demo_toggle.gif)
 
