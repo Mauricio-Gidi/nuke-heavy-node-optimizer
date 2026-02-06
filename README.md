@@ -5,6 +5,7 @@
 ![License](https://img.shields.io/badge/License-MIT-success)
 
 Bulk disable, enable, or toggle "heavy" nodes (by node class) across the current Nuke script - safely (only touches each node's disable knob).
+Compatibility: The Foundry Nuke 13+; tested on Windows. macOS and Linux not yet tested.
 
 ![Toggle heavy nodes demo](media/demo_toggle.gif)
 
